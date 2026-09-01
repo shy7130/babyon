@@ -65,6 +65,24 @@ export async function updateBenefitFieldsAction(formData: FormData) {
   revalidatePath('/admin/review')
 }
 
+const WIZARD_STAGE_OPTIONS = ['임신 준비', '임신 초기', '임신 중기', '임신 후기', '출산 후'] as const
+
+export async function updateBenefitTagsAction(formData: FormData) {
+  await requireAdminSession()
+  const id = formData.get('id') as string
+  const category = formData.get('category') as string
+  const selectedStages = WIZARD_STAGE_OPTIONS.filter((stage) => formData.get(`stage_${stage}`) === 'on')
+  const wizardStages = selectedStages.length > 0 ? selectedStages.join(',') : null
+
+  const supabase = createServerSupabaseClient()
+  const { error } = await supabase
+    .from('benefits')
+    .update({ category, wizard_stages: wizardStages })
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/review')
+}
+
 export async function createManualBenefitAction(formData: FormData) {
   await requireAdminSession()
   const supabase = createServerSupabaseClient()
