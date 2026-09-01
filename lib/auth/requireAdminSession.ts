@@ -4,10 +4,17 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 export async function requireAdminSession() {
   const supabase = createServerSupabaseClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session) {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (error || !user) {
     redirect('/admin/login')
+    return
   }
-  return session
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!adminEmail || user.email !== adminEmail) {
+    redirect('/admin/login')
+    return
+  }
+  return user
 }
