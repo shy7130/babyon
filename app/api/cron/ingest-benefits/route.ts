@@ -7,6 +7,7 @@ import { isAuthorizedCronRequest } from '@/lib/cron/auth'
 import type { BenefitRecord, BenefitSource } from '@/lib/benefits/types'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 const SOURCE_JOBS: { source: BenefitSource; fetch: (apiKey: string) => Promise<BenefitRecord[]> }[] = [
   { source: 'central', fetch: fetchCentralBenefits },
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
     }
 
     try {
-      await supabase.from('ingest_logs').insert({
+      const { error: logError } = await supabase.from('ingest_logs').insert({
         source: summary.source,
         fetched_count: summary.fetchedCount,
         inserted_count: summary.insertedCount,
@@ -47,8 +48,12 @@ export async function GET(request: Request) {
         error_count: summary.errorCount,
         error_message: errorMessage,
       })
-    } catch {
+      if (logError) {
+        console.error(`ingest_logs insert failed for source "${summary.source}":`, logError)
+      }
+    } catch (err) {
       // logging failure must not prevent the remaining sources from running
+      console.error(`ingest_logs insert threw for source "${summary.source}":`, err)
     }
 
     results.push(summary)

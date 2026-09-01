@@ -59,4 +59,33 @@ describe('GET /api/cron/ingest-benefits', () => {
     expect(body.results).toHaveLength(2)
     expect(insertMock).toHaveBeenCalledTimes(2)
   })
+
+  it('logs and continues when ingest_logs insert resolves with an error (not a thrown exception)', async () => {
+    vi.stubEnv('CRON_SECRET', 'secret')
+    vi.stubEnv('DATA_GO_KR_API_KEY', 'key')
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    // Supabase's client resolves with { error } rather than throwing for common
+    // failures like RLS denial — simulate that for both insert calls.
+    insertMock.mockResolvedValue({ error: { message: 'permission denied for table ingest_logs' } })
+
+    const { GET } = await import('@/app/api/cron/ingest-benefits/route')
+
+    const request = new Request('http://localhost/api/cron/ingest-benefits', {
+      headers: { authorization: 'Bearer secret' },
+    })
+
+    const response = await GET(request)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.results).toHaveLength(2)
+    expect(insertMock).toHaveBeenCalledTimes(2)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
+    expect(consoleErrorSpy.mock.calls[0][0]).toContain('central')
+    expect(consoleErrorSpy.mock.calls[1][0]).toContain('seoul_welfare')
+
+    consoleErrorSpy.mockRestore()
+  })
 })
