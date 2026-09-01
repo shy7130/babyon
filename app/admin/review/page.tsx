@@ -27,11 +27,11 @@ export default async function AdminReviewPage({
 
   let query = supabase.from('benefits').select('*').order('created_at', { ascending: false })
   if (tab === 'staging') query = query.eq('status', 'staging')
-  else if (tab === 'pending') query = query.eq('has_pending_update', true)
+  else if (tab === 'pending') query = query.eq('has_pending_update', true).neq('status', 'archived')
   else if (tab === 'published') query = query.eq('status', 'published')
   else if (tab === 'archived') query = query.eq('status', 'archived')
 
-  const { data: benefits } = await query
+  const { data: benefits, error } = await query
 
   return (
     <main className="mx-auto max-w-3xl py-10">
@@ -47,6 +47,11 @@ export default async function AdminReviewPage({
           </a>
         ))}
       </nav>
+      {error && (
+        <p className="mb-6 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+          목록을 불러오지 못했습니다: {error.message}
+        </p>
+      )}
       <ul className="space-y-4">
         {(benefits ?? []).map((benefit) => (
           <li key={benefit.id} className="rounded border p-4">

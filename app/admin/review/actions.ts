@@ -43,7 +43,10 @@ export async function approveBenefit(id: string) {
 export async function archiveBenefit(id: string) {
   await requireAdminSession()
   const supabase = createServerSupabaseClient()
-  const { error } = await supabase.from('benefits').update({ status: 'archived' }).eq('id', id)
+  const { error } = await supabase
+    .from('benefits')
+    .update({ status: 'archived', has_pending_update: false, pending_payload: null })
+    .eq('id', id)
   if (error) throw error
   revalidatePath('/admin/review')
 }
