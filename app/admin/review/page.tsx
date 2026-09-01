@@ -22,7 +22,10 @@ export default async function AdminReviewPage({
   searchParams: { tab?: string }
 }) {
   await requireAdminSession()
-  const tab = (searchParams.tab as TabKey) ?? 'staging'
+  const requestedTab = searchParams.tab
+  const tab: TabKey = TABS.some((t) => t.key === requestedTab)
+    ? (requestedTab as TabKey)
+    : 'staging'
   const supabase = createServerSupabaseClient()
 
   let query = supabase.from('benefits').select('*').order('created_at', { ascending: false })
