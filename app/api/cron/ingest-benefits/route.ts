@@ -38,14 +38,18 @@ export async function GET(request: Request) {
       summary = { source: job.source, fetchedCount: 0, insertedCount: 0, updatedCount: 0, errorCount: 1 }
     }
 
-    await supabase.from('ingest_logs').insert({
-      source: summary.source,
-      fetched_count: summary.fetchedCount,
-      inserted_count: summary.insertedCount,
-      updated_count: summary.updatedCount,
-      error_count: summary.errorCount,
-      error_message: errorMessage,
-    })
+    try {
+      await supabase.from('ingest_logs').insert({
+        source: summary.source,
+        fetched_count: summary.fetchedCount,
+        inserted_count: summary.insertedCount,
+        updated_count: summary.updatedCount,
+        error_count: summary.errorCount,
+        error_message: errorMessage,
+      })
+    } catch {
+      // logging failure must not prevent the remaining sources from running
+    }
 
     results.push(summary)
   }
