@@ -41,7 +41,7 @@ describe('mapCentralToBenefitRecords', () => {
 
   it('falls back to a bokjiro detail URL when servDtlLink is missing', () => {
     const items: CentralApiItem[] = [
-      { servId: 'WLF00000002', servNm: '테스트 혜택' },
+      { servId: 'WLF00000002', servNm: '테스트 혜택', lifeArray: '임신 · 출산' },
     ]
 
     const result = mapCentralToBenefitRecords(items)
@@ -53,14 +53,36 @@ describe('mapCentralToBenefitRecords', () => {
 
   it('excludes items with a missing servId to avoid duplicate rows with a null external_id', () => {
     const items: CentralApiItem[] = [
-      { servId: '', servNm: '누락된 항목' } as CentralApiItem,
-      { servId: 'WLF00000003', servNm: '정상 항목' },
+      { servId: '', servNm: '누락된 항목', lifeArray: '임신 · 출산' } as CentralApiItem,
+      { servId: 'WLF00000003', servNm: '정상 항목', lifeArray: '임신 · 출산' },
     ]
 
     const result = mapCentralToBenefitRecords(items)
 
     expect(result).toHaveLength(1)
     expect(result[0].externalId).toBe('WLF00000003')
+  })
+
+  it('excludes items tagged with more than 3 life stages as non-targeted universal services', () => {
+    const items: CentralApiItem[] = [
+      {
+        servId: 'WLF00000004',
+        servNm: '전 생애주기 행정 서비스',
+        lifeArray: '영유아,아동,청소년,청년,중장년,노년,임신 · 출산',
+      },
+      { servId: 'WLF00000005', servNm: '임신 전용 혜택', lifeArray: '임신 · 출산' },
+      { servId: 'WLF00000006', servNm: '영유아 포함 혜택', lifeArray: '영유아,임신 · 출산' },
+    ]
+
+    const result = mapCentralToBenefitRecords(items)
+
+    expect(result.map((r) => r.externalId)).toEqual(['WLF00000005', 'WLF00000006'])
+  })
+
+  it('excludes items with no lifeArray at all', () => {
+    const items: CentralApiItem[] = [{ servId: 'WLF00000007', servNm: '태그 없음' }]
+
+    expect(mapCentralToBenefitRecords(items)).toHaveLength(0)
   })
 })
 
@@ -109,7 +131,7 @@ describe('fetchCentralBenefits', () => {
   })
 
   it('fetches, parses the XML response, and maps it to BenefitRecords', async () => {
-    const xml = `<wantedList><totalCount>1</totalCount><resultCode>0</resultCode><resultMessage>SUCCESS</resultMessage><servList><servId>WLF00000024</servId><servNm>아이돌봄서비스</servNm></servList></wantedList>`
+    const xml = `<wantedList><totalCount>1</totalCount><resultCode>0</resultCode><resultMessage>SUCCESS</resultMessage><servList><servId>WLF00000024</servId><servNm>아이돌봄서비스</servNm><lifeArray>영유아,임신 · 출산</lifeArray></servList></wantedList>`
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({

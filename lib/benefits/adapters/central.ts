@@ -20,9 +20,19 @@ function buildApplyLink(item: CentralApiItem): string {
   return `https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=${item.servId}`
 }
 
+// lifeArray가 4개 이상의 생애주기를 나열하는 항목은 "전 생애주기 대상" 범용 행정 서비스인
+// 경우가 많다(예: 법률구조, 장애인 등록 신청) — 임신·출산에 특화된 혜택이 아니라 우연히
+// lifeArray=007 필터에 걸린 것이므로 제외한다. 관리자 승인 단계에서 추가로 걸러낼 수도 있다.
+const MAX_LIFE_STAGE_TAGS = 3
+
+function isTargetedLifeStage(lifeArray?: string): boolean {
+  if (!lifeArray) return false
+  return lifeArray.split(',').length <= MAX_LIFE_STAGE_TAGS
+}
+
 export function mapCentralToBenefitRecords(items: CentralApiItem[]): BenefitRecord[] {
   return items
-    .filter((item) => !!item.servId)
+    .filter((item) => !!item.servId && isTargetedLifeStage(item.lifeArray))
     .map((item) => ({
       source: 'central',
       externalId: item.servId,
