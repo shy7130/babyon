@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  fetchSeoulWelfareBenefits,
   mapSeoulWelfareToBenefitRecords,
   type SeoulWelfareApiItem,
 } from '@/lib/benefits/adapters/seoulWelfare'
@@ -32,5 +33,39 @@ describe('mapSeoulWelfareToBenefitRecords', () => {
     const items: SeoulWelfareApiItem[] = [{ servId: 'S00000002', servNm: '테스트' }]
     const result = mapSeoulWelfareToBenefitRecords(items)
     expect(result[0].region).toBe('서울')
+  })
+
+  it('excludes items with a missing servId to avoid duplicate rows with a null external_id', () => {
+    const items: SeoulWelfareApiItem[] = [
+      { servId: '', servNm: '누락된 항목' } as SeoulWelfareApiItem,
+      { servId: 'S00000003', servNm: '정상 항목' },
+    ]
+
+    const result = mapSeoulWelfareToBenefitRecords(items)
+
+    expect(result).toHaveLength(1)
+    expect(result[0].externalId).toBe('S00000003')
+  })
+})
+
+describe('fetchSeoulWelfareBenefits', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('throws a visible error when the response has no wantedList (e.g. an expired key error envelope)', async () => {
+    const errorEnvelope = { resultCode: '30', resultMsg: 'SERVICE KEY IS NOT REGISTERED ERROR.' }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => errorEnvelope,
+      })
+    )
+
+    await expect(fetchSeoulWelfareBenefits('bad-key')).rejects.toThrow(/wantedList/)
+    await expect(fetchSeoulWelfareBenefits('bad-key')).rejects.toThrow(
+      /SERVICE KEY IS NOT REGISTERED/
+    )
   })
 })

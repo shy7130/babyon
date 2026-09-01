@@ -19,25 +19,27 @@ function buildApplyLink(item: CentralApiItem): string {
 }
 
 export function mapCentralToBenefitRecords(items: CentralApiItem[]): BenefitRecord[] {
-  return items.map((item) => ({
-    source: 'central',
-    externalId: item.servId,
-    name: item.servNm,
-    category: CATEGORY,
-    region: '전국',
-    targetPeriod: item.lifeArray ?? null,
-    summary: item.servDgst ?? null,
-    detail: item.servDgst ?? null,
-    applyLink: buildApplyLink(item),
-    applyPeriod: item.sprtCycNm ?? null,
-    imageUrl: getDefaultImage(CATEGORY),
-    rawPayload: item,
-  }))
+  return items
+    .filter((item) => !!item.servId)
+    .map((item) => ({
+      source: 'central',
+      externalId: item.servId,
+      name: item.servNm,
+      category: CATEGORY,
+      region: '전국',
+      targetPeriod: item.lifeArray ?? null,
+      summary: item.servDgst ?? null,
+      detail: item.servDgst ?? null,
+      applyLink: buildApplyLink(item),
+      applyPeriod: item.sprtCycNm ?? null,
+      imageUrl: getDefaultImage(CATEGORY),
+      rawPayload: item,
+    }))
 }
 
 export async function fetchCentralBenefits(apiKey: string): Promise<BenefitRecord[]> {
   const url = new URL(
-    'http://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfareInformations'
+    'https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfareInformations'
   )
   url.searchParams.set('serviceKey', apiKey)
   url.searchParams.set('callTp', 'L')
@@ -50,6 +52,12 @@ export async function fetchCentralBenefits(apiKey: string): Promise<BenefitRecor
     throw new Error(`central welfare API request failed: ${res.status}`)
   }
   const json = await res.json()
-  const items: CentralApiItem[] = json?.wantedList ?? []
+  if (!Array.isArray(json?.wantedList)) {
+    const bodyPreview = JSON.stringify(json).slice(0, 200)
+    throw new Error(
+      `central welfare API response missing wantedList (likely an invalid/expired key or rate limit): ${bodyPreview}`
+    )
+  }
+  const items: CentralApiItem[] = json.wantedList
   return mapCentralToBenefitRecords(items)
 }

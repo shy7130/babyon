@@ -19,25 +19,27 @@ function buildApplyLink(item: SeoulWelfareApiItem): string {
 }
 
 export function mapSeoulWelfareToBenefitRecords(items: SeoulWelfareApiItem[]): BenefitRecord[] {
-  return items.map((item) => ({
-    source: 'seoul_welfare',
-    externalId: item.servId,
-    name: item.servNm,
-    category: CATEGORY,
-    region: item.sggNm ? `서울 ${item.sggNm}` : '서울',
-    targetPeriod: null,
-    summary: item.servDgst ?? null,
-    detail: item.servDgst ?? null,
-    applyLink: buildApplyLink(item),
-    applyPeriod: item.sprtCycNm ?? null,
-    imageUrl: getDefaultImage(CATEGORY),
-    rawPayload: item,
-  }))
+  return items
+    .filter((item) => !!item.servId)
+    .map((item) => ({
+      source: 'seoul_welfare',
+      externalId: item.servId,
+      name: item.servNm,
+      category: CATEGORY,
+      region: item.sggNm ? `서울 ${item.sggNm}` : '서울',
+      targetPeriod: null,
+      summary: item.servDgst ?? null,
+      detail: item.servDgst ?? null,
+      applyLink: buildApplyLink(item),
+      applyPeriod: item.sprtCycNm ?? null,
+      imageUrl: getDefaultImage(CATEGORY),
+      rawPayload: item,
+    }))
 }
 
 export async function fetchSeoulWelfareBenefits(apiKey: string): Promise<BenefitRecord[]> {
   const url = new URL(
-    'http://apis.data.go.kr/B554287/LocalGovernmentWelfareInformations/LcgvWelfarelist'
+    'https://apis.data.go.kr/B554287/LocalGovernmentWelfareInformations/LcgvWelfarelist'
   )
   url.searchParams.set('serviceKey', apiKey)
   url.searchParams.set('callTp', 'L')
@@ -51,6 +53,12 @@ export async function fetchSeoulWelfareBenefits(apiKey: string): Promise<Benefit
     throw new Error(`seoul welfare API request failed: ${res.status}`)
   }
   const json = await res.json()
-  const items: SeoulWelfareApiItem[] = json?.wantedList ?? []
+  if (!Array.isArray(json?.wantedList)) {
+    const bodyPreview = JSON.stringify(json).slice(0, 200)
+    throw new Error(
+      `seoul welfare API response missing wantedList (likely an invalid/expired key or rate limit): ${bodyPreview}`
+    )
+  }
+  const items: SeoulWelfareApiItem[] = json.wantedList
   return mapSeoulWelfareToBenefitRecords(items)
 }

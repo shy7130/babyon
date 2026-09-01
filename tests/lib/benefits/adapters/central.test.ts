@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest'
-import { mapCentralToBenefitRecords, type CentralApiItem } from '@/lib/benefits/adapters/central'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  fetchCentralBenefits,
+  mapCentralToBenefitRecords,
+  type CentralApiItem,
+} from '@/lib/benefits/adapters/central'
 
 describe('mapCentralToBenefitRecords', () => {
   it('maps a raw central welfare item to a BenefitRecord', () => {
@@ -44,5 +48,37 @@ describe('mapCentralToBenefitRecords', () => {
     expect(result[0].applyLink).toBe(
       'https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=WLF00000002'
     )
+  })
+
+  it('excludes items with a missing servId to avoid duplicate rows with a null external_id', () => {
+    const items: CentralApiItem[] = [
+      { servId: '', servNm: '누락된 항목' } as CentralApiItem,
+      { servId: 'WLF00000003', servNm: '정상 항목' },
+    ]
+
+    const result = mapCentralToBenefitRecords(items)
+
+    expect(result).toHaveLength(1)
+    expect(result[0].externalId).toBe('WLF00000003')
+  })
+})
+
+describe('fetchCentralBenefits', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('throws a visible error when the response has no wantedList (e.g. an expired key error envelope)', async () => {
+    const errorEnvelope = { resultCode: '30', resultMsg: 'SERVICE KEY IS NOT REGISTERED ERROR.' }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => errorEnvelope,
+      })
+    )
+
+    await expect(fetchCentralBenefits('bad-key')).rejects.toThrow(/wantedList/)
+    await expect(fetchCentralBenefits('bad-key')).rejects.toThrow(/SERVICE KEY IS NOT REGISTERED/)
   })
 })
