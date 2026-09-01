@@ -66,4 +66,21 @@ describe('decideUpsertAction', () => {
     const existing = makeRow({ status: 'archived' })
     expect(decideUpsertAction(existing, incoming)).toEqual({ type: 'noop', id: 'row-1' })
   })
+
+  it('does not flag a pending update when rawPayload only differs by key order (jsonb round-trip)', () => {
+    // existing.rawPayload simulates a value that round-tripped through Postgres jsonb,
+    // which does not preserve key insertion order.
+    const existing = makeRow({
+      status: 'published',
+      rawPayload: { servDgst: '요약', servId: 'WLF1' },
+    })
+    const incomingReordered: BenefitRecord = {
+      ...incoming,
+      rawPayload: { servId: 'WLF1', servDgst: '요약' },
+    }
+    expect(decideUpsertAction(existing, incomingReordered)).toEqual({
+      type: 'noop',
+      id: 'row-1',
+    })
+  })
 })

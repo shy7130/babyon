@@ -1,4 +1,5 @@
 import type { BenefitRecord, BenefitRow } from './types'
+import { canonicalStringify } from './canonicalJson'
 
 export type UpsertAction =
   | { type: 'insert'; record: BenefitRecord }
@@ -19,7 +20,7 @@ export function decideUpsertAction(
   }
 
   if (existing.status === 'published') {
-    const changed = JSON.stringify(existing.rawPayload) !== JSON.stringify(incoming.rawPayload)
+    const changed = canonicalStringify(existing.rawPayload) !== canonicalStringify(incoming.rawPayload)
     if (changed) {
       return { type: 'flag_pending_update', id: existing.id, pendingPayload: incoming }
     }
