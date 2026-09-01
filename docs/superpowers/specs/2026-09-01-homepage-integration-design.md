@@ -70,15 +70,23 @@ app/page.tsx (Server Component)
 
 **생애주기 매칭**: 사용자가 고른 값(목업과 동일한 5개 어휘 중 하나)이 혜택의 `wizard_stages`를 쉼표로 split한 배열에 포함되어 있으면 매칭. `wizard_stages`가 `null`인 행은애초에 조회 쿼리에서 제외되므로 이 단계에서 걱정할 필요 없음.
 
-## 컴포넌트/파일 구조 (이번 범위: 위저드 + 카테고리 그리드 + 결과만)
+## 결과 화면 구성 (중요 — 목업 재조사로 확정된 사항)
+
+목업을 정밀 재확인한 결과, 현재 `#results` 섹션에서 실제로 화면에 보이는 건 **"혜택 여정" 5단계 타임라인**(`.journey-track`, 각 단계에 "신청 가능 N건" 배지)뿐이고, 실제 혜택명·요약·신청링크가 담긴 카드 그리드(`#grid`, `.card` 11개)는 `body.results-mode` 스코프에서 `display:none !important`로 **숨겨져 있다**(DOM/JS는 남아있음 — 이전 디자인 반복 단계의 흔적).
+
+**이번 구현에서는 숨겨진 카드 그리드를 되살려서 함께 보여준다** — 여정 타임라인은 시각적 요약으로 그대로 두고, 그 아래(또는 옆)에 실제 매칭된 혜택 카드 그리드를 렌더링해 사용자가 실제로 혜택명·요약을 보고 "자세히 보기"로 신청 링크까지 갈 수 있게 한다. 카드 하나의 마크업/필드 구성은 `docs/superpowers/reference-mockup-2026-09-01.html`의 1024~1035번째 줄(`.card` 예시 하나)을 참고: 카테고리 배지(색상 포함) + 지역 태그 + 제목(`<h3>`) + 요약(`<p class="summary">`) + 출처(`<span class="card-src">`) + 하단 좌측 생애주기 라벨 + 우측 "자세히 보기 →" 링크.
+
+## 컴포넌트/파일 구조 (이번 범위: 위저드 + 카테고리 그리드 + 결과[여정 타임라인 + 카드 그리드])
 
 - `app/page.tsx` — 서버 컴포넌트, 데이터 조회 + `<HomeWizard>` 렌더.
 - `lib/home/types.ts` — `HomeBenefit` 타입, `WizardRegion`/`WizardStage` 유니온 타입.
 - `lib/home/mappers.ts` — DB row → `HomeBenefit` 매퍼 (기존 `lib/benefits/mappers.ts` 패턴과 동일한 스타일).
 - `lib/home/matching.ts` — `normalizeRegion`, `matchesRegion`, `matchesStage`, `filterBenefits(benefits, selection)` 순수 함수들. **가장 중요하게 테스트해야 할 파일.**
-- `components/home/HomeWizard.tsx` — `'use client'`, 위저드 상태(스텝/지역/생애주기) + 결과 렌더링. 목업의 마크업/CSS 클래스를 그대로 이식.
+- `components/home/HomeWizard.tsx` — `'use client'`, 위저드 상태(스텝/지역/생애주기) 관리 + 아래 두 결과 컴포넌트에 필터링된 데이터 전달. 목업의 위저드 마크업/CSS 클래스를 그대로 이식.
+- `components/home/ResultsJourney.tsx` — 여정 타임라인(단계별 "신청 가능 N건"). 목업의 `.journey-track` 마크업 이식.
+- `components/home/ResultsGrid.tsx` — 실제 매칭된 혜택 카드 그리드(현재 목업에서 숨겨진 `#grid`/`.card` 마크업을 되살려 이식). 매칭 결과 0건이면 목업의 `#empty` 상태 마크업 사용.
 - `components/home/CategoryGrid.tsx` — 정적 카테고리 6종 그리드(목업 그대로, 클릭 시 위저드로 스크롤/포커스 정도만).
-- `app/globals.css` 또는 `components/home/home.css` — 목업의 관련 CSS 이식.
+- `app/globals.css` 또는 `components/home/home.css` — 목업의 관련 CSS 이식(스타일 블록은 참고 파일의 2~549번째 줄).
 - `public/images/home/` — 목업에서 추출한 마스코트·배경 이미지 실 파일.
 - `public/fonts/` — Pretendard Variable 폰트 실 파일(현재 base64 임베드 → `@font-face`의 `url()`을 실 파일 경로로).
 
