@@ -2,8 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { requireAdminSession } from '@/lib/auth/requireAdminSession'
 
 export async function approveBenefit(id: string) {
+  await requireAdminSession()
   const supabase = createServerSupabaseClient()
   const { data: row, error: fetchError } = await supabase
     .from('benefits')
@@ -39,6 +41,7 @@ export async function approveBenefit(id: string) {
 }
 
 export async function archiveBenefit(id: string) {
+  await requireAdminSession()
   const supabase = createServerSupabaseClient()
   const { error } = await supabase.from('benefits').update({ status: 'archived' }).eq('id', id)
   if (error) throw error
@@ -46,6 +49,7 @@ export async function archiveBenefit(id: string) {
 }
 
 export async function updateBenefitFieldsAction(formData: FormData) {
+  await requireAdminSession()
   const id = formData.get('id') as string
   const imageUrl = formData.get('imageUrl') as string
   const applyLink = formData.get('applyLink') as string
@@ -59,6 +63,7 @@ export async function updateBenefitFieldsAction(formData: FormData) {
 }
 
 export async function createManualBenefitAction(formData: FormData) {
+  await requireAdminSession()
   const supabase = createServerSupabaseClient()
   const { error } = await supabase.from('benefits').insert({
     source: 'manual',
