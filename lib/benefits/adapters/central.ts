@@ -67,6 +67,9 @@ export async function fetchCentralBenefits(apiKey: string): Promise<BenefitRecor
   url.searchParams.set('pageNo', '1')
   url.searchParams.set('numOfRows', '100')
   url.searchParams.set('srchKeyCode', '001')
+  // lifeArray=007 (생애주기 코드표: 임신 · 출산) — 베이비온은 임신·출산 혜택만 다루므로
+  // 서버 쪽에서 이 생애주기로 필터링해서 요청한다. 다른 생애주기 항목은 애초에 받지 않는다.
+  url.searchParams.set('lifeArray', '007')
 
   const res = await fetch(url.toString())
   if (!res.ok) {
