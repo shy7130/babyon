@@ -1,7 +1,9 @@
+import { XMLParser } from 'fast-xml-parser'
 import type { BenefitRecord } from '@/lib/benefits/types'
 import { getDefaultImage } from '@/lib/benefits/defaults'
 
-// 필드명은 공공데이터포털 공개 문서 기준 최선 추정치 — 실제 인증키로 Swagger 재검증 필요.
+// 필드명·엔드포인트·응답형식은 실제 인증키 발급 후 공식 활용가이드
+// (활용가이드_중앙부처복지서비스 v2.2)로 검증됨 — 이 API는 XML만 응답한다(JSON 미지원).
 export interface CentralApiItem {
   servId: string
   servNm: string
@@ -37,27 +39,40 @@ export function mapCentralToBenefitRecords(items: CentralApiItem[]): BenefitReco
     }))
 }
 
+// 실제 응답 봉투: <wantedList><totalCount/><resultCode/><resultMessage/><servList>...</servList>...</wantedList>
+// resultCode "0" = 성공. servList는 0건이면 아예 없고, 1건이면 배열이 아닌 단일 객체로 파싱됨.
+export function parseCentralXmlResponse(xml: string): CentralApiItem[] {
+  const parser = new XMLParser()
+  const parsed = parser.parse(xml)
+  const wantedList = parsed?.wantedList
+
+  if (!wantedList || String(wantedList.resultCode) !== '0') {
+    const bodyPreview = xml.slice(0, 200)
+    throw new Error(
+      `central welfare API returned an error (resultCode=${wantedList?.resultCode}, resultMessage=${wantedList?.resultMessage}): ${bodyPreview}`
+    )
+  }
+
+  const rawList = wantedList.servList
+  if (rawList === undefined) return []
+  return Array.isArray(rawList) ? rawList : [rawList]
+}
+
 export async function fetchCentralBenefits(apiKey: string): Promise<BenefitRecord[]> {
   const url = new URL(
-    'https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfareInformations'
+    'https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001'
   )
   url.searchParams.set('serviceKey', apiKey)
   url.searchParams.set('callTp', 'L')
   url.searchParams.set('pageNo', '1')
   url.searchParams.set('numOfRows', '100')
-  url.searchParams.set('type', 'json')
+  url.searchParams.set('srchKeyCode', '001')
 
   const res = await fetch(url.toString())
   if (!res.ok) {
     throw new Error(`central welfare API request failed: ${res.status}`)
   }
-  const json = await res.json()
-  if (!Array.isArray(json?.wantedList)) {
-    const bodyPreview = JSON.stringify(json).slice(0, 200)
-    throw new Error(
-      `central welfare API response missing wantedList (likely an invalid/expired key or rate limit): ${bodyPreview}`
-    )
-  }
-  const items: CentralApiItem[] = json.wantedList
+  const xml = await res.text()
+  const items = parseCentralXmlResponse(xml)
   return mapCentralToBenefitRecords(items)
 }
