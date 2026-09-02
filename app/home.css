@@ -117,8 +117,9 @@
   .logo .on-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--mint); color: #fff; font-size: 1rem; font-weight: 800; border-radius: 100px; padding: 3px 13px; }
 
   nav.main-nav { display: flex; gap: 26px; font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
-  nav.main-nav a { text-decoration: none; padding: 4px 0; }
+  nav.main-nav a, nav.main-nav .soon-link { text-decoration: none; padding: 4px 0; }
   nav.main-nav a:hover { color: var(--text); }
+  nav.main-nav .soon-link { opacity: 0.6; cursor: default; }
   @media (max-width: 760px) { nav.main-nav { display: none; } }
 
   .admin-link { font-size: 0.85rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
@@ -310,7 +311,8 @@
   .wp-bubble.left { left: 2%; }
   .wp-bubble.left.top { top: 6%; }
   .wp-bubble.left.bottom { top: 46%; }
-  .wp-bubble.right { right: 2%; top: 24%; width: 116px; }
+  .wp-bubble.right { right: 2%; top: 24%; width: 116px; cursor: default; opacity: 0.75; }
+  .wp-bubble.right:hover { transform: none; }
 
   .wp-caption { max-width: 560px; margin: 22px auto 0; }
   .wp-caption h2 { font-size: clamp(1.2rem, 2.6vw, 1.6rem); margin-bottom: 10px; }

@@ -4,8 +4,12 @@ import { useState } from 'react'
 import { filterBenefits } from '@/lib/home/matching'
 import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
 import CategoryGrid from './CategoryGrid'
+import LoungeScene from './LoungeScene'
+import PopularBenefits from './PopularBenefits'
 import ResultsList from './ResultsList'
 import ResultsJourney from './ResultsJourney'
+import TravelPreview from './TravelPreview'
+import TrustStrip from './TrustStrip'
 
 type WizStep = 'region' | 'status' | 'trimester' | 'child' | 'result'
 type StatusVal = '임신 준비' | '임신 중' | '출산 후'
@@ -217,7 +221,11 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
         </div>
       </section>
 
+      <LoungeScene />
+      <TravelPreview />
       <CategoryGrid onSelectCategory={handleCategoryFromGrid} />
+      <PopularBenefits />
+      <TrustStrip />
     </>
   )
 }
