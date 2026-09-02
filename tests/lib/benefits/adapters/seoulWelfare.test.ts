@@ -28,7 +28,23 @@ describe('mapSeoulWelfareToBenefitRecords', () => {
       region: '서울 도봉구',
       applyPeriod: '1회성',
       imageUrl: '/images/defaults/benefit-life.svg',
+      hasDirectApplyLink: false,
     })
+  })
+
+  it('marks hasDirectApplyLink true when servDtlLink is present', () => {
+    const items: SeoulWelfareApiItem[] = [
+      {
+        servId: 'WLF00005587',
+        servNm: '테스트',
+        lifeNmArray: '임신 · 출산',
+        servDtlLink: 'https://www.bokjiro.go.kr/detail/WLF00005587',
+      },
+    ]
+
+    const result = mapSeoulWelfareToBenefitRecords(items)
+
+    expect(result[0].hasDirectApplyLink).toBe(true)
   })
 
   it('falls back to plain 서울 when district name is missing', () => {

@@ -20,6 +20,12 @@ function buildApplyLink(item: CentralApiItem): string {
   return `https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=${item.servId}`
 }
 
+// servDtlLink가 없으면 위 fallback은 우리가 만든 대체 링크일 뿐 정부가 준 실제 상세페이지가
+// 아니다 — 홈페이지에서 "신청하기" 대신 "자세히 보기"를 보여줄지 판단하는 데 쓰인다.
+function hasDirectApplyLink(item: CentralApiItem): boolean {
+  return !!item.servDtlLink
+}
+
 // lifeArray가 4개 이상의 생애주기를 나열하는 항목은 "전 생애주기 대상" 범용 행정 서비스인
 // 경우가 많다(예: 법률구조, 장애인 등록 신청) — 임신·출산에 특화된 혜택이 아니라 우연히
 // lifeArray=007 필터에 걸린 것이므로 제외한다. 관리자 승인 단계에서 추가로 걸러낼 수도 있다.
@@ -45,6 +51,7 @@ export function mapCentralToBenefitRecords(items: CentralApiItem[]): BenefitReco
       applyLink: buildApplyLink(item),
       applyPeriod: item.sprtCycNm ?? null,
       imageUrl: getDefaultImage(CATEGORY),
+      hasDirectApplyLink: hasDirectApplyLink(item),
       rawPayload: item,
     }))
 }

@@ -13,6 +13,7 @@ export interface BenefitRecord {
   applyLink: string | null
   applyPeriod: string | null
   imageUrl: string | null
+  hasDirectApplyLink: boolean
   rawPayload: unknown
 }
 

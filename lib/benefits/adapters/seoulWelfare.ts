@@ -20,6 +20,11 @@ function buildApplyLink(item: SeoulWelfareApiItem): string {
   return `https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=${item.servId}`
 }
 
+// central과 동일한 이유 — servDtlLink가 없으면 fallback은 우리가 만든 대체 링크일 뿐이다.
+function hasDirectApplyLink(item: SeoulWelfareApiItem): boolean {
+  return !!item.servDtlLink
+}
+
 // central(lifeArray)과 같은 이유로, 생애주기 태그가 4개 이상인 항목은 "전 생애주기 대상"
 // 범용 서비스일 가능성이 높으므로 제외한다.
 const MAX_LIFE_STAGE_TAGS = 3
@@ -44,6 +49,7 @@ export function mapSeoulWelfareToBenefitRecords(items: SeoulWelfareApiItem[]): B
       applyLink: buildApplyLink(item),
       applyPeriod: item.sprtCycNm ?? null,
       imageUrl: getDefaultImage(CATEGORY),
+      hasDirectApplyLink: hasDirectApplyLink(item),
       rawPayload: item,
     }))
 }

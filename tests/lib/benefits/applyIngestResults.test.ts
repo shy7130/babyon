@@ -60,6 +60,7 @@ const record: BenefitRecord = {
   applyLink: 'https://example.com',
   applyPeriod: '수시',
   imageUrl: '/images/defaults/benefit-cash.svg',
+  hasDirectApplyLink: true,
   rawPayload: { servId: 'WLF1', servDgst: '요약' },
 }
 

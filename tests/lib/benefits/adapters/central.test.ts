@@ -34,9 +34,20 @@ describe('mapCentralToBenefitRecords', () => {
         applyLink: 'https://www.bokjiro.go.kr/detail/WLF00000001',
         applyPeriod: '수시',
         imageUrl: '/images/defaults/benefit-cash.svg',
+        hasDirectApplyLink: true,
         rawPayload: items[0],
       },
     ])
+  })
+
+  it('marks hasDirectApplyLink false when servDtlLink is missing (fallback link only)', () => {
+    const items: CentralApiItem[] = [
+      { servId: 'WLF00000002', servNm: '테스트 혜택', lifeArray: '임신 · 출산' },
+    ]
+
+    const result = mapCentralToBenefitRecords(items)
+
+    expect(result[0].hasDirectApplyLink).toBe(false)
   })
 
   it('falls back to a bokjiro detail URL when servDtlLink is missing', () => {

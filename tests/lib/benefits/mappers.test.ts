@@ -17,6 +17,7 @@ describe('toBenefitRow', () => {
       apply_link: 'https://example.com',
       apply_period: '수시',
       image_url: '/images/defaults/benefit-cash.svg',
+      has_direct_apply_link: true,
       status: 'staging',
       has_pending_update: false,
       pending_payload: null,
@@ -39,6 +40,7 @@ describe('toBenefitRow', () => {
       applyLink: 'https://example.com',
       applyPeriod: '수시',
       imageUrl: '/images/defaults/benefit-cash.svg',
+      hasDirectApplyLink: true,
       status: 'staging',
       hasPendingUpdate: false,
       pendingPayload: null,
@@ -64,6 +66,7 @@ describe('toInsertRow', () => {
       applyLink: 'https://example.com',
       applyPeriod: '수시',
       imageUrl: '/images/defaults/benefit-cash.svg',
+      hasDirectApplyLink: true,
       rawPayload: { servId: 'WLF1' },
     }
 
@@ -74,6 +77,7 @@ describe('toInsertRow', () => {
       external_id: 'WLF1',
       name: '첫만남이용권',
       status: 'staging',
+      has_direct_apply_link: true,
       raw_payload: { servId: 'WLF1' },
     })
     expect(typeof result.last_synced_at).toBe('string')

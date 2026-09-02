@@ -1,5 +1,5 @@
-import { JOURNEY_STAGE_INDEX } from '@/lib/home/matching'
-import type { WizardStage } from '@/lib/home/types'
+import { countBenefitsForJourneyIndex, JOURNEY_STAGE_INDEX } from '@/lib/home/matching'
+import type { HomeBenefit, WizardRegion, WizardStage } from '@/lib/home/types'
 
 interface JourneyStageDef {
   index: 1 | 2 | 3 | 4 | 5
@@ -19,10 +19,12 @@ const STAGES: JourneyStageDef[] = [
 
 export default function ResultsJourney({
   activeStage,
-  matchCount,
+  benefits,
+  region,
 }: {
   activeStage: WizardStage
-  matchCount: number
+  benefits: HomeBenefit[]
+  region: WizardRegion
 }) {
   const activeIndex = JOURNEY_STAGE_INDEX[activeStage] ?? 2
 
@@ -39,6 +41,10 @@ export default function ResultsJourney({
       </svg>
       {STAGES.map((stage) => {
         const isActive = stage.index === activeIndex
+        // 5번 카드("육아 시작")는 대응하는 WizardStage가 없어 실제 개수를 셀 수 없다 — 위저드로도
+        // 도달 불가능한 장식용 카드라서 원래 목업 문구를 그대로 둔다.
+        const count = stage.index === 5 ? null : countBenefitsForJourneyIndex(benefits, region, stage.index)
+        const moreCount = count !== null ? count - stage.items.length : 0
         return (
           <div
             key={stage.index}
@@ -50,6 +56,7 @@ export default function ResultsJourney({
             </span>
             <div className="stage-card">
               <h4>{stage.title}</h4>
+              {count !== null && <p className="stage-count">받을 수 있는 혜택 {count}개</p>}
               <ul>
                 <li>
                   <span className="ck">✓</span>
@@ -60,22 +67,9 @@ export default function ResultsJourney({
                   {stage.items[1]}
                 </li>
               </ul>
-              <button className="stage-pill" type="button" hidden={!isActive}>
-                <span className="pill-count">신청 가능 {matchCount}건</span>
-              </button>
+              {moreCount > 0 && <span className="stage-more">+ {moreCount}개 더보기</span>}
             </div>
             <span className={`step-dot${isActive ? ' active' : ''}`} />
-            {isActive && (
-              <div className="journey-mascot">
-                <div className="journey-bubble">
-                  지금 받을 수 있는
-                  <br />
-                  혜택을 확인해요!
-                </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="journey-mascot-img" src="/images/home/journey-mascot.png" alt="" />
-              </div>
-            )}
           </div>
         )
       })}

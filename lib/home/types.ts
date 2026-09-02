@@ -9,6 +9,7 @@ export interface HomeBenefit {
   region: string
   summary: string | null
   applyLink: string | null
+  hasDirectApplyLink: boolean
   wizardStages: WizardStage[]
   sourceLabel: string | null
 }

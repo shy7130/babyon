@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { filterBenefits } from '@/lib/home/matching'
 import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
 import CategoryGrid from './CategoryGrid'
-import ResultsGrid from './ResultsGrid'
+import ResultsList from './ResultsList'
 import ResultsJourney from './ResultsJourney'
 
 type WizStep = 'region' | 'status' | 'trimester' | 'child' | 'result'
@@ -46,6 +46,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [category, setCategory] = useState<HomeCategory | 'all'>('all')
 
   const matched = filterBenefits(benefits, { region, stage, category })
+  const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all' })
 
   function handleRegionSelect(val: WizardRegion) {
     setRegion(val)
@@ -95,10 +96,10 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               우리 가족의 <span className="hl">혜택 여정</span>
             </h1>
             <p className="rp-hero2-sub">임신부터 육아까지, 지금 받을 수 있는 혜택을 단계별로 확인해보세요</p>
-            <ResultsJourney activeStage={stage} matchCount={matched.length} />
+            <ResultsJourney activeStage={stage} benefits={benefits} region={region} />
           </div>
         </div>
-        <ResultsGrid benefits={matched} />
+        <ResultsList benefits={stageBenefits} stageName={stage} initialCategory={category} />
       </section>
     )
   }

@@ -38,3 +38,23 @@ export const JOURNEY_STAGE_INDEX: Record<WizardStage, 1 | 2 | 3 | 4> = {
   '임신 후기': 3,
   '출산 후': 4,
 }
+
+// JOURNEY_STAGE_INDEX의 역방향 조회 — 1번 카드는 "임신 준비"와 "임신 초기" 두 WizardStage를
+// 합친 것이므로, 카드별 실제 혜택 개수를 세려면 해당 인덱스에 속한 모든 WizardStage를 알아야 한다.
+export function wizardStagesForJourneyIndex(index: 1 | 2 | 3 | 4): WizardStage[] {
+  return (Object.keys(JOURNEY_STAGE_INDEX) as WizardStage[]).filter(
+    (stage) => JOURNEY_STAGE_INDEX[stage] === index
+  )
+}
+
+export function countBenefitsForJourneyIndex(
+  benefits: HomeBenefit[],
+  region: WizardRegion,
+  index: 1 | 2 | 3 | 4
+): number {
+  const stages = wizardStagesForJourneyIndex(index)
+  return benefits.filter(
+    (benefit) =>
+      matchesRegion(benefit, region) && stages.some((stage) => benefit.wizardStages.includes(stage))
+  ).length
+}

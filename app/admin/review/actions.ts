@@ -86,6 +86,7 @@ export async function updateBenefitTagsAction(formData: FormData) {
 export async function createManualBenefitAction(formData: FormData) {
   await requireAdminSession()
   const supabase = createServerSupabaseClient()
+  const applyLink = formData.get('applyLink') as string
   const { error } = await supabase.from('benefits').insert({
     source: 'manual',
     external_id: null,
@@ -94,7 +95,10 @@ export async function createManualBenefitAction(formData: FormData) {
     region: formData.get('region') as string,
     summary: formData.get('summary') as string,
     detail: formData.get('detail') as string,
-    apply_link: formData.get('applyLink') as string,
+    apply_link: applyLink,
+    // 수동 등록은 정부 API의 fallback 링크 개념이 없다 -- 관리자가 직접 입력한 링크가 곧
+    // 실제 신청/상세 페이지이므로, 값이 있으면 바로 "신청하기"로 표시한다.
+    has_direct_apply_link: !!applyLink,
     apply_period: formData.get('applyPeriod') as string,
     image_url: formData.get('imageUrl') as string,
     status: 'published',
