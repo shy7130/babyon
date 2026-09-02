@@ -57,6 +57,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [stage, setStage] = useState<WizardStage>('임신 중기')
   const [showResults, setShowResults] = useState(false)
   const [category, setCategory] = useState<HomeCategory | 'all'>('all')
+  const [toast, setToast] = useState<string | null>(null)
 
   const matched = filterBenefits(benefits, { region, stage, category })
   const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all' })
@@ -64,6 +65,11 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   function handleRegionSelect(val: WizardRegion) {
     setRegion(val)
     setStep(nextStepAfter('region', statusVal))
+  }
+
+  function showToast(message: string) {
+    setToast(message)
+    setTimeout(() => setToast(null), 2500)
   }
 
   function handleStatusSelect(val: StatusVal) {
@@ -282,7 +288,11 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
                     </span>
                     서울
                   </button>
-                  <button className="wiz-opt" type="button" onClick={() => handleRegionSelect('경기')}>
+                  <button
+                    className="wiz-opt"
+                    type="button"
+                    onClick={() => showToast('경기 지역은 아직 준비 중이에요! 조금만 기다려주세요 💛')}
+                  >
                     <span className="opt-icon pin">
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path
@@ -418,6 +428,8 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
       <CategoryGrid onSelectCategory={handleCategoryFromGrid} />
       <PopularBenefits />
       <TrustStrip />
+
+      <div className={`toast${toast ? ' show' : ''}`}>{toast}</div>
     </>
   )
 }
