@@ -541,7 +541,7 @@
   .featured-picks-sparkle { margin-right: 2px; }
   .featured-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 860px) { .featured-grid { grid-template-columns: 1fr; } }
-  .featured-card { position: relative; display: block; border-radius: 20px; padding: 22px 20px;
+  .featured-card { position: relative; display: flex; flex-direction: column; border-radius: 20px; padding: 22px 20px;
     text-decoration: none; color: var(--text); box-shadow: var(--shadow); }
   .featured-card.blush { background: var(--surface-blush); }
   .featured-card.lavender { background: var(--surface-lavender); }
@@ -561,7 +561,7 @@
   .featured-card.amber .featured-amount { color: var(--amber-strong); }
   .featured-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
   .featured-desc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; }
-  .featured-cta { display: block; text-align: center; font-size: 0.86rem; font-weight: 700; padding: 11px; border-radius: 12px; color: #fff; }
+  .featured-cta { display: block; margin-top: auto; text-align: center; font-size: 0.86rem; font-weight: 700; padding: 11px; border-radius: 12px; color: #fff; }
   .featured-card.blush .featured-cta { background: var(--blush-strong); }
   .featured-card.lavender .featured-cta { background: var(--lavender-strong); }
   .featured-card.amber .featured-cta { background: var(--amber-strong); }
