@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { filterBenefits, getFeaturedBenefits } from '@/lib/home/matching'
+import { filterBenefits, getFeaturedBenefits, getPopularBenefits } from '@/lib/home/matching'
 import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
 import CategoryGrid from './CategoryGrid'
 import FeaturedPicks from './FeaturedPicks'
@@ -463,7 +463,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
       <LoungeScene />
       <TravelPreview />
       <CategoryGrid onSelectCategory={handleCategoryFromGrid} />
-      <PopularBenefits />
+      <PopularBenefits benefits={getPopularBenefits(benefits)} />
       <TrustStrip />
 
       <div className={`toast${toast ? ' show' : ''}`}>{toast}</div>

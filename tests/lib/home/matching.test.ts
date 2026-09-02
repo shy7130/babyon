@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   filterBenefits,
   getFeaturedBenefits,
+  getPopularBenefits,
   matchesRegion,
   matchesStage,
   normalizeRegion,
@@ -136,5 +137,39 @@ describe('getFeaturedBenefits', () => {
 
   it('returns an empty array when nothing has an amount', () => {
     expect(getFeaturedBenefits([makeBenefit({ amountManwon: null })])).toEqual([])
+  })
+})
+
+describe('getPopularBenefits', () => {
+  it('excludes district-specific benefits, keeping only 전국/서울 전역', () => {
+    const benefits: HomeBenefit[] = [
+      makeBenefit({ id: 'nation', region: '전국' }),
+      makeBenefit({ id: 'seoul-wide', region: '서울' }),
+      makeBenefit({ id: 'gu', region: '서울 구로구' }),
+      makeBenefit({ id: 'gyeonggi', region: '경기' }),
+    ]
+    expect(getPopularBenefits(benefits).map((b) => b.id).sort()).toEqual(['nation', 'seoul-wide'])
+  })
+
+  it('ranks benefits with a known amount above those without', () => {
+    const benefits: HomeBenefit[] = [
+      makeBenefit({ id: 'no-amount', region: '전국', amountManwon: null }),
+      makeBenefit({ id: 'has-amount', region: '전국', amountManwon: 200 }),
+    ]
+    expect(getPopularBenefits(benefits).map((b) => b.id)).toEqual(['has-amount', 'no-amount'])
+  })
+
+  it('breaks amount ties by hasDirectApplyLink, then by name', () => {
+    const benefits: HomeBenefit[] = [
+      makeBenefit({ id: 'a', name: '나 혜택', region: '전국', hasDirectApplyLink: false }),
+      makeBenefit({ id: 'b', name: '가 혜택', region: '전국', hasDirectApplyLink: true }),
+      makeBenefit({ id: 'c', name: '다 혜택', region: '전국', hasDirectApplyLink: false }),
+    ]
+    expect(getPopularBenefits(benefits).map((b) => b.id)).toEqual(['b', 'a', 'c'])
+  })
+
+  it('limits to the requested count', () => {
+    const benefits = Array.from({ length: 6 }, (_, i) => makeBenefit({ id: `b${i}`, region: '전국' }))
+    expect(getPopularBenefits(benefits, 4)).toHaveLength(4)
   })
 })

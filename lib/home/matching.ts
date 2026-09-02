@@ -52,3 +52,20 @@ export function getFeaturedBenefits(benefits: HomeBenefit[], count = 3): HomeBen
     .sort((a, b) => b.amountManwon - a.amountManwon)
     .slice(0, count)
 }
+
+// "인기 혜택" 섹션은 위저드 답변(지역·구·단계) 이전에 누구에게나 보여주는 자리라, 실제 조회수
+// 같은 인기 지표가 없는 지금은 특정 구 전용 혜택을 끼워넣지 않도록 전국/서울 전역 항목만 후보로
+// 삼는다. 금액이 있는 항목(구체적 숫자라 더 눈에 띔)을 먼저, 그다음 바로 신청 가능한 항목을
+// 우선하고, 나머지는 이름순으로 안정적으로 정렬한다.
+export function getPopularBenefits(benefits: HomeBenefit[], count = 4): HomeBenefit[] {
+  return benefits
+    .filter((b) => b.region === '전국' || b.region === '서울')
+    .sort((a, b) => {
+      const amountDiff = (b.amountManwon ?? -1) - (a.amountManwon ?? -1)
+      if (amountDiff !== 0) return amountDiff
+      const applyDiff = Number(b.hasDirectApplyLink) - Number(a.hasDirectApplyLink)
+      if (applyDiff !== 0) return applyDiff
+      return a.name.localeCompare(b.name, 'ko')
+    })
+    .slice(0, count)
+}
