@@ -53,6 +53,19 @@ describe('matchesRegion', () => {
     expect(matchesRegion(benefit, '서울')).toBe(true)
     expect(matchesRegion(benefit, '경기')).toBe(false)
   })
+  it('matches any district when no district is selected', () => {
+    const benefit = makeBenefit({ region: '서울 강남구' })
+    expect(matchesRegion(benefit, '서울', null)).toBe(true)
+  })
+  it('excludes a benefit tied to a different district once one is selected', () => {
+    const benefit = makeBenefit({ region: '서울 강남구' })
+    expect(matchesRegion(benefit, '서울', '구로구')).toBe(false)
+    expect(matchesRegion(benefit, '서울', '강남구')).toBe(true)
+  })
+  it('still matches a citywide (no-district) 서울 benefit regardless of selected district', () => {
+    const benefit = makeBenefit({ region: '서울' })
+    expect(matchesRegion(benefit, '서울', '구로구')).toBe(true)
+  })
 })
 
 describe('matchesStage', () => {
@@ -87,6 +100,21 @@ describe('filterBenefits', () => {
   it('excludes benefits whose stage does not match', () => {
     const result = filterBenefits(benefits, { region: '경기', stage: '임신 중기', category: 'all' })
     expect(result.map((b) => b.id)).toEqual(['a'])
+  })
+
+  it('narrows further by district when one is given', () => {
+    const withDistricts: HomeBenefit[] = [
+      makeBenefit({ id: 'x', region: '전국', wizardStages: ['임신 중기'] }),
+      makeBenefit({ id: 'y', region: '서울 구로구', wizardStages: ['임신 중기'] }),
+      makeBenefit({ id: 'z', region: '서울 금천구', wizardStages: ['임신 중기'] }),
+    ]
+    const result = filterBenefits(withDistricts, {
+      region: '서울',
+      district: '구로구',
+      stage: '임신 중기',
+      category: 'all',
+    })
+    expect(result.map((b) => b.id)).toEqual(['x', 'y'])
   })
 })
 

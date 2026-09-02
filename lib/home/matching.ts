@@ -6,9 +6,20 @@ export function normalizeRegion(dbRegion: string): 'all' | WizardRegion {
   return 'all'
 }
 
-export function matchesRegion(benefit: HomeBenefit, selected: WizardRegion): boolean {
+// district는 서울 선택 시에만 의미 있다(구 단위 혜택 vs 서울 전역 혜택 구분) — null이면
+// 구를 아직 안 골랐거나 해당 없는 경우로, 서울 관련 혜택을 구 상관없이 전부 매치한다.
+export function matchesRegion(
+  benefit: HomeBenefit,
+  selected: WizardRegion,
+  district: string | null = null
+): boolean {
   const normalized = normalizeRegion(benefit.region)
-  return normalized === 'all' || normalized === selected
+  if (normalized === 'all') return true
+  if (normalized !== selected) return false
+  if (selected === '서울' && district && benefit.region !== '서울') {
+    return benefit.region === `서울 ${district}`
+  }
+  return true
 }
 
 export function matchesStage(benefit: HomeBenefit, selected: WizardStage): boolean {
@@ -17,6 +28,7 @@ export function matchesStage(benefit: HomeBenefit, selected: WizardStage): boole
 
 export interface WizardSelection {
   region: WizardRegion
+  district?: string | null
   stage: WizardStage
   category: HomeCategory | 'all'
 }
@@ -24,7 +36,11 @@ export interface WizardSelection {
 export function filterBenefits(benefits: HomeBenefit[], selection: WizardSelection): HomeBenefit[] {
   return benefits.filter((benefit) => {
     const matchCategory = selection.category === 'all' || benefit.category === selection.category
-    return matchCategory && matchesRegion(benefit, selection.region) && matchesStage(benefit, selection.stage)
+    return (
+      matchCategory &&
+      matchesRegion(benefit, selection.region, selection.district ?? null) &&
+      matchesStage(benefit, selection.stage)
+    )
   })
 }
 

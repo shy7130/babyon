@@ -13,11 +13,20 @@ import StatBar from './StatBar'
 import TravelPreview from './TravelPreview'
 import TrustStrip from './TrustStrip'
 
-type WizStep = 'region' | 'status' | 'trimester' | 'child' | 'result'
+type WizStep = 'region' | 'district' | 'status' | 'trimester' | 'child' | 'result'
 type StatusVal = '임신 준비' | '임신 중' | '출산 후'
 
+const SEOUL_DISTRICTS = [
+  '종로구', '중구', '용산구', '성동구', '광진구',
+  '동대문구', '중랑구', '성북구', '강북구', '도봉구',
+  '노원구', '은평구', '서대문구', '마포구', '양천구',
+  '강서구', '구로구', '금천구', '영등포구', '동작구',
+  '관악구', '서초구', '강남구', '송파구', '강동구',
+] as const
+
 function nextStepAfter(step: WizStep, statusVal: StatusVal | null): WizStep {
-  if (step === 'region') return 'status'
+  if (step === 'region') return 'district'
+  if (step === 'district') return 'status'
   if (step === 'status') {
     if (statusVal === '임신 중') return 'trimester'
     if (statusVal === '출산 후') return 'child'
@@ -27,7 +36,8 @@ function nextStepAfter(step: WizStep, statusVal: StatusVal | null): WizStep {
 }
 
 function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
-  if (step === 'status') return 'region'
+  if (step === 'district') return 'region'
+  if (step === 'status') return 'district'
   if (step === 'trimester' || step === 'child') return 'status'
   if (step === 'result') {
     if (statusVal === '임신 중') return 'trimester'
@@ -37,8 +47,10 @@ function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
   return 'region'
 }
 
+// 구 선택도 "지역 선택" 단계의 연장으로 취급해 스테퍼(지역선택/상태선택/혜택확인) 3단계는
+// 그대로 둔다 — 화면은 하나 늘었지만 사용자 입장에서는 같은 "지역을 정하는" 과정이다.
 function stepIndexFor(step: WizStep): 0 | 1 | 2 {
-  if (step === 'region') return 0
+  if (step === 'region' || step === 'district') return 0
   if (step === 'result') return 2
   return 1
 }
@@ -53,18 +65,24 @@ function wsState(idx: 0 | 1 | 2, step: WizStep): string {
 export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [step, setStep] = useState<WizStep>('region')
   const [region, setRegion] = useState<WizardRegion>('서울')
+  const [district, setDistrict] = useState<string | null>(null)
   const [statusVal, setStatusVal] = useState<StatusVal | null>(null)
   const [stage, setStage] = useState<WizardStage>('임신 중기')
   const [showResults, setShowResults] = useState(false)
   const [category, setCategory] = useState<HomeCategory | 'all'>('all')
   const [toast, setToast] = useState<string | null>(null)
 
-  const matched = filterBenefits(benefits, { region, stage, category })
-  const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all' })
+  const matched = filterBenefits(benefits, { region, district, stage, category })
+  const stageBenefits = filterBenefits(benefits, { region, district, stage, category: 'all' })
 
   function handleRegionSelect(val: WizardRegion) {
     setRegion(val)
     setStep(nextStepAfter('region', statusVal))
+  }
+
+  function handleDistrictSelect(val: string | null) {
+    setDistrict(val)
+    setStep(nextStepAfter('district', statusVal))
   }
 
   function showToast(message: string) {
@@ -101,9 +119,12 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   function handleReset() {
     setShowResults(false)
     setStep('region')
+    setDistrict(null)
     setStatusVal(null)
     setCategory('all')
   }
+
+  const regionLabel = district ? `${region} ${district}` : region
 
   if (showResults) {
     const featured = getFeaturedBenefits(stageBenefits)
@@ -118,7 +139,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               </button>
               <span className="rp-hero2-badge">
                 <span>
-                  {region} · {stage}
+                  {regionLabel} · {stage}
                 </span>
               </span>
               <h1>
@@ -310,6 +331,22 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               </div>
             )}
 
+            {step === 'district' && (
+              <div className="wiz-panel" data-step="district">
+                <h3 className="wiz-question">어느 구에 살고 계세요?</h3>
+                <div className="wiz-options district-options">
+                  <button className="wiz-opt" type="button" onClick={() => handleDistrictSelect(null)}>
+                    서울 전체
+                  </button>
+                  {SEOUL_DISTRICTS.map((gu) => (
+                    <button key={gu} className="wiz-opt" type="button" onClick={() => handleDistrictSelect(gu)}>
+                      {gu}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {step === 'status' && (
               <div className="wiz-panel" data-step="status">
                 <h3 className="wiz-question">지금 어떤 단계인가요?</h3>
@@ -372,7 +409,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
                   찾았어요!
                 </h3>
                 <p className="wiz-meta">
-                  {region} · {stage} 기준
+                  {regionLabel} · {stage} 기준
                 </p>
                 <p className="wiz-count">
                   <strong>{matched.length}</strong>개의 혜택이 있어요
