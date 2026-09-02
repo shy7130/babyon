@@ -128,7 +128,11 @@
   /* ---------- hero ---------- */
   section.hero {
     position: relative; overflow: hidden;
-    padding: 64px 24px 24px; min-height: 100vh; min-height: 100dvh; display: flex; align-items: safe flex-end;
+    /* header.site is sticky (not fixed) so it takes real space above this section — subtracting
+       its height here keeps the wizard card centered in the space actually left on screen,
+       instead of centering inside a box that's taller than the visible viewport. */
+    padding: 64px 24px 24px; min-height: calc(100vh - 90px); min-height: calc(100dvh - 90px);
+    display: flex; align-items: safe center;
     background: linear-gradient(180deg, var(--bg) 0%, var(--surface-mint) 62%);
   }
   .hero-bg {

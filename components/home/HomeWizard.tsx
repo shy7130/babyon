@@ -111,9 +111,120 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   return (
     <>
       <section className="hero snap-section" id="finder">
+        <div className="hero-bg" aria-hidden="true">
+          <svg className="hero-hills" viewBox="0 0 1440 220" preserveAspectRatio="none">
+            <path
+              className="back"
+              d="M0,140 C220,80 440,160 700,110 C960,60 1200,140 1440,110 L1440,220 L0,220 Z"
+            />
+            <path
+              className="front"
+              d="M0,180 C260,130 520,190 780,150 C1040,110 1300,180 1440,160 L1440,220 L0,220 Z"
+            />
+          </svg>
+
+          <svg className="hero-deco" style={{ top: '16%', left: '73%' }} width="22" height="22" viewBox="0 0 18 18" fill="none">
+            <path d="M9,0 l2.2,6.8 L18,9 l-6.8,2.2 L9,18 l-2.2,-6.8 L0,9 l6.8,-2.2 Z" fill="var(--lavender)" />
+          </svg>
+          <svg className="hero-deco" style={{ top: '26%', left: '25%' }} width="20" height="18" viewBox="0 0 18 16" fill="none">
+            <path
+              d="M9 15S1 10 1 5.2C1 2.3 3.2 1 5.2 1 7 1 8.4 2 9 3.4 9.6 2 11 1 12.8 1c2 0 4.2 1.3 4.2 4.2C17 10 9 15 9 15Z"
+              fill="var(--blush)"
+            />
+          </svg>
+          <svg className="hero-deco" style={{ top: '22%', left: '70%' }} width="15" height="14" viewBox="0 0 18 16" fill="none">
+            <path
+              d="M9 15S1 10 1 5.2C1 2.3 3.2 1 5.2 1 7 1 8.4 2 9 3.4 9.6 2 11 1 12.8 1c2 0 4.2 1.3 4.2 4.2C17 10 9 15 9 15Z"
+              fill="var(--blush)"
+            />
+          </svg>
+          <svg className="hero-deco" style={{ top: '44%', left: '86%' }} width="17" height="16" viewBox="0 0 18 16" fill="none">
+            <path
+              d="M9 15S1 10 1 5.2C1 2.3 3.2 1 5.2 1 7 1 8.4 2 9 3.4 9.6 2 11 1 12.8 1c2 0 4.2 1.3 4.2 4.2C17 10 9 15 9 15Z"
+              fill="var(--blush)"
+              opacity="0.85"
+            />
+          </svg>
+
+          <svg className="hero-deco" style={{ bottom: '18%', left: '11%' }} width="30" height="38" viewBox="0 0 30 38" fill="none">
+            <path d="M15,38 L15,18" stroke="var(--mint-strong)" strokeWidth="2.2" strokeLinecap="round" />
+            <path d="M15,20 C6,20 3,10 3,10 C3,10 12,7 15,18 Z" fill="var(--mint)" />
+            <path d="M15,20 C24,20 27,10 27,10 C27,10 18,7 15,18 Z" fill="var(--mint-strong)" />
+          </svg>
+
+          <svg className="hero-deco" style={{ bottom: '8%', left: '5%' }} width="76" height="52" viewBox="0 0 76 52" fill="none">
+            <path d="M18,49 L18,32M50,44 L50,26" stroke="var(--mint-strong)" strokeWidth="2.2" strokeLinecap="round" />
+            <g transform="translate(18,18)">
+              <path
+                d="M0,-13 C7,-13 12,-8 12,-1 C12,7 0,15 0,15 C0,15 -12,7 -12,-1 C-12,-8 -7,-13 0,-13 Z"
+                fill="var(--blush-soft)"
+                stroke="var(--blush)"
+                strokeWidth="1.2"
+              />
+              <circle cx="0" cy="-1" r="4" fill="var(--amber)" />
+            </g>
+            <g transform="translate(50,12) scale(0.82)">
+              <path
+                d="M0,-13 C7,-13 12,-8 12,-1 C12,7 0,15 0,15 C0,15 -12,7 -12,-1 C-12,-8 -7,-13 0,-13 Z"
+                fill="var(--lavender-soft)"
+                stroke="var(--lavender)"
+                strokeWidth="1.2"
+              />
+              <circle cx="0" cy="-1" r="4" fill="var(--amber)" />
+            </g>
+          </svg>
+
+          <svg className="hero-deco" style={{ bottom: '6%', right: '9%' }} width="90" height="80" viewBox="0 0 90 80" fill="none">
+            <path
+              d="M45,4 L86,34 L78,34 L78,74 L12,74 L12,34 L4,34 Z"
+              stroke="var(--mint-strong)"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <g transform="translate(37,26) scale(0.62)">
+              <path
+                d="M9 15S1 10 1 5.2C1 2.3 3.2 1 5.2 1 7 1 8.4 2 9 3.4 9.6 2 11 1 12.8 1c2 0 4.2 1.3 4.2 4.2C17 10 9 15 9 15Z"
+                fill="var(--blush)"
+              />
+            </g>
+            <path
+              d="M4,74 h82 M14,74 v-10 M26,74 v-10 M38,74 v-10 M52,74 v-10 M64,74 v-10 M76,74 v-10"
+              stroke="var(--mint)"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+
         <div className="hero-center">
           <div className="wiz-scene">
             <div className="arch" />
+            <div className="arch-cloud left" />
+            <div className="arch-cloud right" />
+            <svg className="arch-spark a" width="30" height="30" viewBox="0 0 18 18" fill="none">
+              <path d="M9,0 l2.2,6.8 L18,9 l-6.8,2.2 L9,18 l-2.2,-6.8 L0,9 l6.8,-2.2 Z" fill="var(--lavender)" />
+            </svg>
+            <svg className="arch-spark b" width="22" height="22" viewBox="0 0 13 13" fill="none">
+              <path d="M6.5,0 l1.6,4.9 L13,6.5 l-4.9,1.6 L6.5,13 l-1.6,-4.9 L0,6.5 l4.9,-1.6 Z" fill="var(--mint-strong)" />
+            </svg>
+            <svg className="arch-heart" width="30" height="27" viewBox="0 0 18 16" fill="none">
+              <path
+                d="M9 15S1 10 1 5.2C1 2.3 3.2 1 5.2 1 7 1 8.4 2 9 3.4 9.6 2 11 1 12.8 1c2 0 4.2 1.3 4.2 4.2C17 10 9 15 9 15Z"
+                fill="currentColor"
+              />
+            </svg>
+            <svg className="wiz-arrow" width="34" height="30" viewBox="0 0 34 30" fill="none">
+              <path
+                d="M2 4C14 6 26 14 30 24"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeDasharray="1 5"
+              />
+              <path d="M24 22l6 3-1-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="wiz-timer">⏱ 약 30초면 확인할 수 있어요</span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="char-arch" src="/images/home/char-arch.png" alt="" />
           </div>
