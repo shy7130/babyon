@@ -41,6 +41,13 @@ function stepIndexFor(step: WizStep): 0 | 1 | 2 {
   return 1
 }
 
+function wsState(idx: 0 | 1 | 2, step: WizStep): string {
+  const active = stepIndexFor(step)
+  if (idx === active) return ' active'
+  if (idx < active) return ' done'
+  return ''
+}
+
 export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [step, setStep] = useState<WizStep>('region')
   const [region, setRegion] = useState<WizardRegion>('서울')
@@ -239,15 +246,39 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
 
             {step === 'region' && (
               <div className="wiz-panel" data-step="region">
-                <p className="wiz-carousel-line wiz-greet active">
-                  안녕하세요! 우리 동네에서 받을 수 있는 혜택을 같이 찾아볼까요? 💗
-                </p>
-                <h3 className="wiz-carousel-line wiz-question active">어디에 살고 계세요?</h3>
+                <div className="wiz-carousel">
+                  <p className="wiz-carousel-line wiz-greet active">
+                    안녕하세요! 우리 동네에서 받을 수 있는 혜택을 같이 찾아볼까요? 💗
+                  </p>
+                  <h3 className="wiz-carousel-line wiz-question active">어디에 살고 계세요?</h3>
+                </div>
                 <div className="wiz-options">
                   <button className="wiz-opt" type="button" onClick={() => handleRegionSelect('서울')}>
+                    <span className="opt-icon pin">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path
+                          d="M7 13S12 8.4 12 5.3A5 5 0 002 5.3C2 8.4 7 13 7 13Z"
+                          stroke="currentColor"
+                          strokeWidth="1.4"
+                          strokeLinejoin="round"
+                        />
+                        <circle cx="7" cy="5.2" r="1.6" fill="currentColor" />
+                      </svg>
+                    </span>
                     서울
                   </button>
                   <button className="wiz-opt" type="button" onClick={() => handleRegionSelect('경기')}>
+                    <span className="opt-icon pin">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path
+                          d="M7 13S12 8.4 12 5.3A5 5 0 002 5.3C2 8.4 7 13 7 13Z"
+                          stroke="currentColor"
+                          strokeWidth="1.4"
+                          strokeLinejoin="round"
+                        />
+                        <circle cx="7" cy="5.2" r="1.6" fill="currentColor" />
+                      </svg>
+                    </span>
                     경기
                   </button>
                 </div>
@@ -321,14 +352,49 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
                 <p className="wiz-count">
                   <strong>{matched.length}</strong>개의 혜택이 있어요
                 </p>
-                <button className="btn primary" type="button" onClick={() => setShowResults(true)}>
+                <button className="btn primary fc-submit" type="button" onClick={() => setShowResults(true)}>
                   내 혜택 확인하기 →
                 </button>
               </div>
             )}
 
-            <p className="wiz-trust">회원가입 없이 바로 확인 가능</p>
+            <div className="wiz-stepper">
+              <div className={`ws-item${wsState(0, step)}`}>
+                <span className="ws-dot" />
+                <span className="ws-label">지역 선택</span>
+              </div>
+              <div className={`ws-line${stepIndexFor(step) > 0 ? ' done' : ''}`} />
+              <div className={`ws-item${wsState(1, step)}`}>
+                <span className="ws-dot" />
+                <span className="ws-label">상태 선택</span>
+              </div>
+              <div className={`ws-line${stepIndexFor(step) > 1 ? ' done' : ''}`} />
+              <div className={`ws-item${wsState(2, step)}`}>
+                <span className="ws-dot" />
+                <span className="ws-label">혜택 확인</span>
+              </div>
+            </div>
+
+            <p className="wiz-trust">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M4 10.5l4 4 8-9"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              회원가입 없이 바로 확인 가능
+            </p>
           </div>
+
+          <a className="scroll-more" href="#categories">
+            <span>혜택 둘러보기</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
         </div>
       </section>
 

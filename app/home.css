@@ -72,7 +72,11 @@
   }
 
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+  /* header.site is sticky, so it permanently occupies space at the top of the viewport.
+     Without scroll-padding-top, scroll-snap-align:start on each snap-section aligns that
+     section's top edge with the true viewport top, sliding it underneath the sticky header
+     and exposing the next section's background in the space the header steals back. */
+  html { scroll-behavior: smooth; scroll-snap-type: y mandatory; scroll-padding-top: 90px; }
   html:has(body.results-mode) { scroll-snap-type: none; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; scroll-snap-type: none; } }
   .snap-section { scroll-snap-align: start; scroll-snap-stop: always; }
