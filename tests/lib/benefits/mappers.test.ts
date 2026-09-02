@@ -18,6 +18,7 @@ describe('toBenefitRow', () => {
       apply_period: '수시',
       image_url: '/images/defaults/benefit-cash.svg',
       has_direct_apply_link: true,
+      amount_manwon: 200,
       status: 'staging',
       has_pending_update: false,
       pending_payload: null,
@@ -41,6 +42,7 @@ describe('toBenefitRow', () => {
       applyPeriod: '수시',
       imageUrl: '/images/defaults/benefit-cash.svg',
       hasDirectApplyLink: true,
+      amountManwon: 200,
       status: 'staging',
       hasPendingUpdate: false,
       pendingPayload: null,
@@ -67,6 +69,7 @@ describe('toInsertRow', () => {
       applyPeriod: '수시',
       imageUrl: '/images/defaults/benefit-cash.svg',
       hasDirectApplyLink: true,
+      amountManwon: 200,
       rawPayload: { servId: 'WLF1' },
     }
 
@@ -78,6 +81,7 @@ describe('toInsertRow', () => {
       name: '첫만남이용권',
       status: 'staging',
       has_direct_apply_link: true,
+      amount_manwon: 200,
       raw_payload: { servId: 'WLF1' },
     })
     expect(typeof result.last_synced_at).toBe('string')

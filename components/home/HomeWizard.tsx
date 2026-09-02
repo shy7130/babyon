@@ -1,14 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { filterBenefits } from '@/lib/home/matching'
+import { filterBenefits, getFeaturedBenefits } from '@/lib/home/matching'
 import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
 import CategoryGrid from './CategoryGrid'
+import FeaturedPicks from './FeaturedPicks'
 import LoungeScene from './LoungeScene'
 import PopularBenefits from './PopularBenefits'
 import ResultsList from './ResultsList'
-import ResultsJourney from './ResultsJourney'
 import SiteHeader from './SiteHeader'
+import StatBar from './StatBar'
 import TravelPreview from './TravelPreview'
 import TrustStrip from './TrustStrip'
 
@@ -99,6 +100,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   }
 
   if (showResults) {
+    const featured = getFeaturedBenefits(stageBenefits)
     return (
       <>
         <SiteHeader onHomeClick={handleReset} />
@@ -110,17 +112,18 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               </button>
               <span className="rp-hero2-badge">
                 <span>
-                  {region} · {stage} 기준
+                  {region} · {stage}
                 </span>
               </span>
               <h1>
                 우리 가족의 <span className="hl">혜택 여정</span>
               </h1>
-              <p className="rp-hero2-sub">임신부터 육아까지, 지금 받을 수 있는 혜택을 단계별로 확인해보세요</p>
-              <ResultsJourney activeStage={stage} benefits={benefits} region={region} />
+              <p className="rp-hero2-sub">지금 받을 수 있는 혜택을 한눈에 확인하세요</p>
+              <StatBar benefits={stageBenefits} />
             </div>
           </div>
-          <ResultsList benefits={stageBenefits} stageName={stage} initialCategory={category} />
+          <FeaturedPicks benefits={featured} />
+          <ResultsList benefits={stageBenefits} initialCategory={category} />
         </section>
       </>
     )

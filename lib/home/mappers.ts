@@ -10,6 +10,7 @@ export function toHomeBenefit(row: Record<string, any>): HomeBenefit {
     summary: row.summary,
     applyLink: row.apply_link,
     hasDirectApplyLink: row.has_direct_apply_link ?? false,
+    amountManwon: row.amount_manwon ?? null,
     wizardStages: row.wizard_stages
       ? (row.wizard_stages.split(',') as WizardStage[])
       : [],

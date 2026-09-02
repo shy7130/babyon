@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
-  countBenefitsForJourneyIndex,
   filterBenefits,
-  JOURNEY_STAGE_INDEX,
+  getFeaturedBenefits,
   matchesRegion,
   matchesStage,
   normalizeRegion,
-  wizardStagesForJourneyIndex,
 } from '@/lib/home/matching'
 import type { HomeBenefit } from '@/lib/home/types'
 
@@ -19,6 +17,7 @@ function makeBenefit(overrides: Partial<HomeBenefit>): HomeBenefit {
     summary: null,
     applyLink: null,
     hasDirectApplyLink: false,
+    amountManwon: null,
     wizardStages: ['임신 중기'],
     sourceLabel: null,
     ...overrides,
@@ -91,42 +90,23 @@ describe('filterBenefits', () => {
   })
 })
 
-describe('JOURNEY_STAGE_INDEX', () => {
-  it('maps 임신 준비 and 임신 초기 to the same journey card (1)', () => {
-    expect(JOURNEY_STAGE_INDEX['임신 준비']).toBe(1)
-    expect(JOURNEY_STAGE_INDEX['임신 초기']).toBe(1)
-  })
-  it('maps the remaining stages to their own cards', () => {
-    expect(JOURNEY_STAGE_INDEX['임신 중기']).toBe(2)
-    expect(JOURNEY_STAGE_INDEX['임신 후기']).toBe(3)
-    expect(JOURNEY_STAGE_INDEX['출산 후']).toBe(4)
-  })
-})
-
-describe('wizardStagesForJourneyIndex', () => {
-  it('returns both stages sharing journey card 1', () => {
-    expect(wizardStagesForJourneyIndex(1).sort()).toEqual(['임신 준비', '임신 초기'].sort())
-  })
-  it('returns a single stage for cards 2-4', () => {
-    expect(wizardStagesForJourneyIndex(4)).toEqual(['출산 후'])
-  })
-})
-
-describe('countBenefitsForJourneyIndex', () => {
+describe('getFeaturedBenefits', () => {
   const benefits: HomeBenefit[] = [
-    makeBenefit({ id: 'a', region: '전국', wizardStages: ['임신 준비'] }),
-    makeBenefit({ id: 'b', region: '서울', wizardStages: ['임신 초기'] }),
-    makeBenefit({ id: 'c', region: '경기', wizardStages: ['임신 초기'] }),
-    makeBenefit({ id: 'd', region: '전국', wizardStages: ['출산 후'] }),
+    makeBenefit({ id: 'a', amountManwon: 100 }),
+    makeBenefit({ id: 'b', amountManwon: null }),
+    makeBenefit({ id: 'c', amountManwon: 300 }),
+    makeBenefit({ id: 'd', amountManwon: 200 }),
   ]
 
-  it('counts benefits across both stages sharing a journey card, filtered by region', () => {
-    expect(countBenefitsForJourneyIndex(benefits, '서울', 1)).toBe(2) // a(전국) + b(서울)
-    expect(countBenefitsForJourneyIndex(benefits, '경기', 1)).toBe(2) // a(전국) + c(경기)
+  it('sorts by amount descending and excludes benefits with no amount', () => {
+    expect(getFeaturedBenefits(benefits).map((b) => b.id)).toEqual(['c', 'd', 'a'])
   })
 
-  it('counts a single-stage journey card', () => {
-    expect(countBenefitsForJourneyIndex(benefits, '서울', 4)).toBe(1) // d(전국)
-    expect(countBenefitsForJourneyIndex(benefits, '서울', 2)).toBe(0)
+  it('limits to the requested count', () => {
+    expect(getFeaturedBenefits(benefits, 2).map((b) => b.id)).toEqual(['c', 'd'])
+  })
+
+  it('returns an empty array when nothing has an amount', () => {
+    expect(getFeaturedBenefits([makeBenefit({ amountManwon: null })])).toEqual([])
   })
 })

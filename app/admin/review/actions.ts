@@ -56,10 +56,12 @@ export async function updateBenefitFieldsAction(formData: FormData) {
   const id = formData.get('id') as string
   const imageUrl = formData.get('imageUrl') as string
   const applyLink = formData.get('applyLink') as string
+  const amountManwonRaw = formData.get('amountManwon') as string
+  const amountManwon = amountManwonRaw.trim() === '' ? null : Number(amountManwonRaw)
   const supabase = createServerSupabaseClient()
   const { error } = await supabase
     .from('benefits')
-    .update({ image_url: imageUrl, apply_link: applyLink })
+    .update({ image_url: imageUrl, apply_link: applyLink, amount_manwon: amountManwon })
     .eq('id', id)
   if (error) throw error
   revalidatePath('/admin/review')
@@ -87,6 +89,8 @@ export async function createManualBenefitAction(formData: FormData) {
   await requireAdminSession()
   const supabase = createServerSupabaseClient()
   const applyLink = formData.get('applyLink') as string
+  const amountManwonRaw = formData.get('amountManwon') as string
+  const amountManwon = amountManwonRaw.trim() === '' ? null : Number(amountManwonRaw)
   const { error } = await supabase.from('benefits').insert({
     source: 'manual',
     external_id: null,
@@ -99,6 +103,7 @@ export async function createManualBenefitAction(formData: FormData) {
     // 수동 등록은 정부 API의 fallback 링크 개념이 없다 -- 관리자가 직접 입력한 링크가 곧
     // 실제 신청/상세 페이지이므로, 값이 있으면 바로 "신청하기"로 표시한다.
     has_direct_apply_link: !!applyLink,
+    amount_manwon: amountManwon,
     apply_period: formData.get('applyPeriod') as string,
     image_url: formData.get('imageUrl') as string,
     status: 'published',

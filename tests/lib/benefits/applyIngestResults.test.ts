@@ -61,6 +61,7 @@ const record: BenefitRecord = {
   applyPeriod: '수시',
   imageUrl: '/images/defaults/benefit-cash.svg',
   hasDirectApplyLink: true,
+  amountManwon: null,
   rawPayload: { servId: 'WLF1', servDgst: '요약' },
 }
 

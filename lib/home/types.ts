@@ -10,6 +10,7 @@ export interface HomeBenefit {
   summary: string | null
   applyLink: string | null
   hasDirectApplyLink: boolean
+  amountManwon: number | null
   wizardStages: WizardStage[]
   sourceLabel: string | null
 }

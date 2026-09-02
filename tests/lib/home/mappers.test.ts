@@ -11,6 +11,7 @@ describe('toHomeBenefit', () => {
       summary: '출생아 1인당 200만원 지급',
       apply_link: 'https://example.com/apply',
       has_direct_apply_link: true,
+      amount_manwon: 200,
       wizard_stages: '임신 후기,출산 후',
       raw_payload: { jurMnofNm: '보건복지부' },
     }
@@ -23,6 +24,7 @@ describe('toHomeBenefit', () => {
       summary: '출생아 1인당 200만원 지급',
       applyLink: 'https://example.com/apply',
       hasDirectApplyLink: true,
+      amountManwon: 200,
       wizardStages: ['임신 후기', '출산 후'],
       sourceLabel: '보건복지부',
     })

@@ -35,9 +35,18 @@ describe('mapCentralToBenefitRecords', () => {
         applyPeriod: '수시',
         imageUrl: '/images/defaults/benefit-cash.svg',
         hasDirectApplyLink: true,
+        amountManwon: 200,
         rawPayload: items[0],
       },
     ])
+  })
+
+  it('leaves amountManwon null when the summary has no 만원 amount', () => {
+    const items: CentralApiItem[] = [
+      { servId: 'WLF00000003', servNm: '테스트 혜택', servDgst: '코레일 요금 30% 할인', lifeArray: '영유아' },
+    ]
+
+    expect(mapCentralToBenefitRecords(items)[0].amountManwon).toBeNull()
   })
 
   it('marks hasDirectApplyLink false when servDtlLink is missing (fallback link only)', () => {

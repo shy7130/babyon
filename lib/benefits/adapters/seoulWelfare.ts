@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
+import { parseAmountManwon } from '@/lib/benefits/amountParser'
 import type { BenefitRecord } from '@/lib/benefits/types'
 import { getDefaultImage } from '@/lib/benefits/defaults'
 
@@ -50,6 +51,7 @@ export function mapSeoulWelfareToBenefitRecords(items: SeoulWelfareApiItem[]): B
       applyPeriod: item.sprtCycNm ?? null,
       imageUrl: getDefaultImage(CATEGORY),
       hasDirectApplyLink: hasDirectApplyLink(item),
+      amountManwon: parseAmountManwon(item.servDgst),
       rawPayload: item,
     }))
 }

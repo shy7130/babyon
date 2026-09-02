@@ -66,6 +66,9 @@ export default async function AdminReviewPage({
               {benefit.category} · {benefit.region}
             </p>
             <p className="mt-2 text-sm">{benefit.summary}</p>
+            <p className="mt-1 text-sm">
+              지원금액: {benefit.amount_manwon != null ? `${benefit.amount_manwon}만원` : '미입력'}
+            </p>
             {benefit.has_pending_update && (
               <p className="mt-2 text-sm text-amber-600">
                 새 내용: {(benefit.pending_payload as any)?.summary}
@@ -102,6 +105,13 @@ export default async function AdminReviewPage({
                 defaultValue={benefit.apply_link ?? ''}
                 placeholder="신청링크"
                 className="rounded border px-2 py-1"
+              />
+              <input
+                type="number"
+                name="amountManwon"
+                defaultValue={benefit.amount_manwon ?? ''}
+                placeholder="지원금액(만원)"
+                className="w-32 rounded border px-2 py-1"
               />
               <button type="submit" className="rounded bg-slate-700 px-3 py-1 text-white">
                 저장
@@ -143,6 +153,12 @@ export default async function AdminReviewPage({
           <input name="summary" placeholder="한줄요약" className="rounded border px-3 py-2" />
           <textarea name="detail" placeholder="상세내용" className="rounded border px-3 py-2" />
           <input name="applyLink" placeholder="신청링크" className="rounded border px-3 py-2" />
+          <input
+            type="number"
+            name="amountManwon"
+            placeholder="지원금액(만원)"
+            className="rounded border px-3 py-2"
+          />
           <input name="applyPeriod" placeholder="신청기간" className="rounded border px-3 py-2" />
           <input name="imageUrl" placeholder="대표이미지 URL" className="rounded border px-3 py-2" />
           <button type="submit" className="rounded bg-slate-900 py-2 text-white">
