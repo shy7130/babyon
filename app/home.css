@@ -417,7 +417,7 @@
   .rp-header { padding-bottom: 0; margin-bottom: 0; }
 
   .rp-hero2 { position: relative; padding: 34px 20px 40px; border-radius: 28px; overflow: hidden; text-align: center;
-    background: var(--surface-mint) url("/images/home/hero-bg.jpg") center / cover no-repeat; }
+    background: var(--bg) url("/images/home/results-bg.png") center / cover no-repeat; }
   .rp-hero2-reset { position: absolute; top: 18px; right: 18px; background: var(--surface); border: 1px solid var(--border);
     border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
   .rp-hero2-reset:hover { color: var(--text); border-color: var(--text-muted); }
