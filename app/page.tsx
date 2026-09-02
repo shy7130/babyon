@@ -1,7 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { toHomeBenefit } from '@/lib/home/mappers'
 import HomeWizard from '@/components/home/HomeWizard'
-import SiteHeader from '@/components/home/SiteHeader'
 import './home.css'
 
 export default async function HomePage() {
@@ -23,10 +22,5 @@ export default async function HomePage() {
 
   const benefits = (data ?? []).map(toHomeBenefit)
 
-  return (
-    <>
-      <SiteHeader />
-      <HomeWizard benefits={benefits} />
-    </>
-  )
+  return <HomeWizard benefits={benefits} />
 }

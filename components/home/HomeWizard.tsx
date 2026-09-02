@@ -8,6 +8,7 @@ import LoungeScene from './LoungeScene'
 import PopularBenefits from './PopularBenefits'
 import ResultsList from './ResultsList'
 import ResultsJourney from './ResultsJourney'
+import SiteHeader from './SiteHeader'
 import TravelPreview from './TravelPreview'
 import TrustStrip from './TrustStrip'
 
@@ -90,33 +91,44 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
     setShowResults(true)
   }
 
+  function handleReset() {
+    setShowResults(false)
+    setStep('region')
+    setStatusVal(null)
+    setCategory('all')
+  }
+
   if (showResults) {
     return (
-      <section className="results wrap" id="results">
-        <div className="rp-header">
-          <div className="rp-hero2">
-            <button className="rp-hero2-reset" type="button" onClick={() => setShowResults(false)}>
-              처음부터 다시 찾기
-            </button>
-            <span className="rp-hero2-badge">
-              <span>
-                {region} · {stage} 기준
+      <>
+        <SiteHeader onHomeClick={handleReset} />
+        <section className="results wrap" id="results">
+          <div className="rp-header">
+            <div className="rp-hero2">
+              <button className="rp-hero2-reset" type="button" onClick={handleReset}>
+                처음부터 다시 찾기
+              </button>
+              <span className="rp-hero2-badge">
+                <span>
+                  {region} · {stage} 기준
+                </span>
               </span>
-            </span>
-            <h1>
-              우리 가족의 <span className="hl">혜택 여정</span>
-            </h1>
-            <p className="rp-hero2-sub">임신부터 육아까지, 지금 받을 수 있는 혜택을 단계별로 확인해보세요</p>
-            <ResultsJourney activeStage={stage} benefits={benefits} region={region} />
+              <h1>
+                우리 가족의 <span className="hl">혜택 여정</span>
+              </h1>
+              <p className="rp-hero2-sub">임신부터 육아까지, 지금 받을 수 있는 혜택을 단계별로 확인해보세요</p>
+              <ResultsJourney activeStage={stage} benefits={benefits} region={region} />
+            </div>
           </div>
-        </div>
-        <ResultsList benefits={stageBenefits} stageName={stage} initialCategory={category} />
-      </section>
+          <ResultsList benefits={stageBenefits} stageName={stage} initialCategory={category} />
+        </section>
+      </>
     )
   }
 
   return (
     <>
+      <SiteHeader onHomeClick={handleReset} />
       <section className="hero snap-section" id="finder">
         <div className="hero-bg" aria-hidden="true">
           <svg className="hero-hills" viewBox="0 0 1440 220" preserveAspectRatio="none">
