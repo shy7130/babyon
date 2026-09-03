@@ -5,12 +5,10 @@ import { filterBenefits, getFeaturedBenefits, getPopularBenefits } from '@/lib/h
 import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
 import CategoryGrid from './CategoryGrid'
 import FeaturedPicks from './FeaturedPicks'
-import LoungeScene from './LoungeScene'
 import PopularBenefits from './PopularBenefits'
 import ResultsList from './ResultsList'
 import SiteHeader from './SiteHeader'
 import StatBar from './StatBar'
-import TravelPreview from './TravelPreview'
 import TrustStrip from './TrustStrip'
 
 type WizStep = 'region' | 'district' | 'status' | 'trimester' | 'child' | 'result'
@@ -460,8 +458,6 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
         </div>
       </section>
 
-      <LoungeScene />
-      <TravelPreview />
       <CategoryGrid onSelectCategory={handleCategoryFromGrid} />
       <PopularBenefits benefits={getPopularBenefits(benefits)} />
       <TrustStrip />
