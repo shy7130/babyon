@@ -5,6 +5,12 @@ import './home.css'
 
 export default async function HomePage() {
   const supabase = createServerSupabaseClient()
+
+  const { error: viewError } = await supabase.rpc('increment_page_view')
+  if (viewError) {
+    console.error('failed to record page view:', viewError)
+  }
+
   // anon has column-level grants only (see migrations 0002/0004), never table-wide SELECT —
   // PostgREST rejects select=* for such a role with a 42501 permission error even though every
   // column below is individually granted, so this must list exactly the anon-safe columns.

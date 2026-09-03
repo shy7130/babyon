@@ -1,5 +1,6 @@
 import { requireAdminSession } from '@/lib/auth/requireAdminSession'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { getPageViewStats } from '@/lib/admin/pageViews'
 import { approveBenefit, archiveBenefit, createManualBenefitAction, updateBenefitFieldsAction } from './actions'
 import TagsForm from './TagsForm'
 
@@ -31,10 +32,16 @@ export default async function AdminReviewPage({
   else if (tab === 'archived') query = query.eq('status', 'archived')
 
   const { data: benefits, error } = await query
+  const pageViews = await getPageViewStats(supabase)
 
   return (
     <main className="mx-auto max-w-3xl py-10">
-      <h1 className="mb-6 text-xl font-semibold">혜택 검수</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">혜택 검수</h1>
+        <p className="text-sm text-slate-500">
+          오늘 방문 {pageViews.today.toLocaleString()} · 누적 방문 {pageViews.total.toLocaleString()}
+        </p>
+      </div>
       <nav className="mb-6 flex gap-4 border-b">
         {TABS.map((t) => (
           <a
