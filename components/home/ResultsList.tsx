@@ -75,7 +75,7 @@ export default function ResultsList({
             const color = getCategoryColor(benefit.category)
             return (
               <li key={benefit.id}>
-                <a className="result-row" href={benefit.applyLink ?? '#'}>
+                <a className="result-row" href={benefit.applyLink ?? '#'} target="_blank" rel="noopener noreferrer">
                   <span className="result-row-icon" style={{ background: color.surface }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={getCategoryIcon(benefit.category)} alt="" />

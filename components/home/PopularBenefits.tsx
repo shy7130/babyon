@@ -17,7 +17,13 @@ export default function PopularBenefits({ benefits }: { benefits: HomeBenefit[] 
       </div>
       <div className="pop-grid">
         {benefits.map((benefit) => (
-          <a key={benefit.id} className="pop-card" href={benefit.applyLink ?? '#'}>
+          <a
+            key={benefit.id}
+            className="pop-card"
+            href={benefit.applyLink ?? '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <span className={`region-tag ${benefit.region === '전국' ? 'mint' : 'lavender'}`}>{benefit.region}</span>
             <h3>{benefit.name}</h3>
             {benefit.summary && <p className="pop-desc">{benefit.summary}</p>}

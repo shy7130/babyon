@@ -15,7 +15,13 @@ export default function FeaturedPicks({ benefits }: { benefits: HomeBenefit[] })
         {benefits.map((benefit, i) => {
           const accent = ACCENTS[i % ACCENTS.length]
           return (
-            <a key={benefit.id} className={`featured-card ${accent}`} href={benefit.applyLink ?? '#'}>
+            <a
+              key={benefit.id}
+              className={`featured-card ${accent}`}
+              href={benefit.applyLink ?? '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <span className="featured-card-icon">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getCategoryIcon(benefit.category)} alt="" />
