@@ -8,23 +8,16 @@ import ResultsList from './ResultsList'
 import SiteHeader from './SiteHeader'
 import StatBar from './StatBar'
 
-type WizStep = 'region' | 'district' | 'status' | 'trimester' | 'child' | 'situation' | 'result'
+type WizStep = 'region' | 'age' | 'status' | 'trimester' | 'child' | 'situation' | 'result'
 type StatusVal = '임신 준비' | '임신 중' | '출산 후'
 type ChildCount = '1명' | '2명' | '3명 이상'
-
-const SEOUL_DISTRICTS = [
-  '종로구', '중구', '용산구', '성동구', '광진구',
-  '동대문구', '중랑구', '성북구', '강북구', '도봉구',
-  '노원구', '은평구', '서대문구', '마포구', '양천구',
-  '강서구', '구로구', '금천구', '영등포구', '동작구',
-  '관악구', '서초구', '강남구', '송파구', '강동구',
-] as const
+type AgeGroup = '34세 이하' | '35세 이상'
 
 const SITUATIONS: WizardSituation[] = ['다자녀', '장애인가정', '저소득·의료급여', '자영업자·프리랜서', '미혼모·부', '고위험임신']
 
 function nextStepAfter(step: WizStep, statusVal: StatusVal | null): WizStep {
-  if (step === 'region') return 'district'
-  if (step === 'district') return 'status'
+  if (step === 'region') return 'age'
+  if (step === 'age') return 'status'
   if (step === 'status') {
     if (statusVal === '임신 중') return 'trimester'
     if (statusVal === '출산 후') return 'child'
@@ -34,8 +27,8 @@ function nextStepAfter(step: WizStep, statusVal: StatusVal | null): WizStep {
 }
 
 function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
-  if (step === 'district') return 'region'
-  if (step === 'status') return 'district'
+  if (step === 'age') return 'region'
+  if (step === 'status') return 'age'
   if (step === 'trimester' || step === 'child') return 'status'
   if (step === 'situation' || step === 'result') {
     if (step === 'result') return 'situation'
@@ -46,10 +39,10 @@ function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
   return 'region'
 }
 
-// 구 선택과 상황 선택도 각각 "지역 선택"/"상태 선택" 단계의 연장으로 취급해 스테퍼(지역선택/
+// 나이 선택과 상황 선택도 각각 "지역 선택"/"상태 선택" 단계의 연장으로 취급해 스테퍼(지역선택/
 // 상태선택/혜택확인) 3단계는 그대로 둔다 — 화면은 늘었지만 사용자 입장에서는 같은 과정이다.
 function stepIndexFor(step: WizStep): 0 | 1 | 2 {
-  if (step === 'region' || step === 'district') return 0
+  if (step === 'region' || step === 'age') return 0
   if (step === 'result') return 2
   return 1
 }
@@ -64,7 +57,6 @@ function wsState(idx: 0 | 1 | 2, step: WizStep): string {
 export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [step, setStep] = useState<WizStep>('region')
   const [region, setRegion] = useState<WizardRegion>('서울')
-  const [district, setDistrict] = useState<string | null>(null)
   const [statusVal, setStatusVal] = useState<StatusVal | null>(null)
   const [stage, setStage] = useState<WizardStage>('임신 중기')
   const [showResults, setShowResults] = useState(false)
@@ -72,17 +64,21 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [situations, setSituations] = useState<WizardSituation[]>([])
   const [toast, setToast] = useState<string | null>(null)
 
-  const matched = filterBenefits(benefits, { region, district, stage, category })
-  const stageBenefits = filterBenefits(benefits, { region, district, stage, category: 'all' })
+  const matched = filterBenefits(benefits, { region, stage, category })
+  const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all' })
 
   function handleRegionSelect(val: WizardRegion) {
     setRegion(val)
     setStep(nextStepAfter('region', statusVal))
   }
 
-  function handleDistrictSelect(val: string | null) {
-    setDistrict(val)
-    setStep(nextStepAfter('district', statusVal))
+  // 35세 이상이면 "고위험임신" 상황을 자동으로 켜둔다(고령임신은 대표적인 고위험 요인) — 자녀
+  // 수와 같은 방식으로, 뒤이은 상황 선택 화면에서 이미 체크된 채로 보이고 바로 해제할 수 있다.
+  function handleAgeSelect(val: AgeGroup) {
+    if (val === '35세 이상') {
+      setSituations((prev) => (prev.includes('고위험임신') ? prev : [...prev, '고위험임신']))
+    }
+    setStep(nextStepAfter('age', statusVal))
   }
 
   function showToast(message: string) {
@@ -125,13 +121,12 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   function handleReset() {
     setShowResults(false)
     setStep('region')
-    setDistrict(null)
     setStatusVal(null)
     setCategory('all')
     setSituations([])
   }
 
-  const regionLabel = district ? `${region} ${district}` : region
+  const regionLabel = region
 
   if (showResults) {
     const featured = getFeaturedBenefits(stageBenefits, situations)
@@ -254,7 +249,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
         </div>
 
         <div className="hero-center">
-          {step === 'district' || step === 'situation' ? (
+          {step === 'situation' ? (
             <div className="wiz-scene wiz-scene-compact">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="char-arch char-arch-compact" src="/images/home/char-arch.png" alt="" />
@@ -345,18 +340,16 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               </div>
             )}
 
-            {step === 'district' && (
-              <div className="wiz-panel" data-step="district">
-                <h3 className="wiz-question">어느 구에 살고 계세요?</h3>
-                <div className="wiz-options district-options">
-                  <button className="wiz-opt" type="button" onClick={() => handleDistrictSelect(null)}>
-                    서울 전체
+            {step === 'age' && (
+              <div className="wiz-panel" data-step="age">
+                <h3 className="wiz-question">당신의 나이를 선택해주세요</h3>
+                <div className="wiz-options">
+                  <button className="wiz-opt" type="button" onClick={() => handleAgeSelect('34세 이하')}>
+                    34세 이하
                   </button>
-                  {SEOUL_DISTRICTS.map((gu) => (
-                    <button key={gu} className="wiz-opt" type="button" onClick={() => handleDistrictSelect(gu)}>
-                      {gu}
-                    </button>
-                  ))}
+                  <button className="wiz-opt" type="button" onClick={() => handleAgeSelect('35세 이상')}>
+                    35세 이상
+                  </button>
                 </div>
               </div>
             )}

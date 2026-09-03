@@ -161,9 +161,8 @@
 
   /* ---------- wizard scene (character + bubble) ---------- */
   .wiz-scene { position: relative; width: 520px; max-width: 100%; height: 300px; display: flex; align-items: flex-end; justify-content: center; margin: 0 auto; }
-  /* district (26 items) and situation (6-item checklist) steps have the longest option lists,
-     so the mascot scene shrinks to a small floating character to keep the whole card on
-     screen without scrolling. */
+  /* the situation step (6-item checklist) has the longest option list, so the mascot scene
+     shrinks to a small floating character to keep the whole card on screen without scrolling. */
   .wiz-scene.wiz-scene-compact { height: 64px; }
   .char-arch.char-arch-compact { width: 120px; }
   .arch {
@@ -267,11 +266,6 @@
   .wiz-opt .opt-emoji { font-size: 1.8rem; }
   .wiz-opt .opt-sub { font-size: 0.98rem; font-weight: 500; color: var(--text-muted); }
   @media (max-width: 860px) { .wiz-opt { padding: 14px 14px; font-size: 0.96rem; } .wiz-opt .opt-emoji { font-size: 1.25rem; } .wiz-opt .opt-icon.pin { width: 26px; height: 26px; } .wiz-opt .opt-icon.pin svg { width: 14px; height: 14px; } }
-
-  /* 25개 구 + "서울 전체" 버튼은 한 줄에 4~5개씩 촘촘한 그리드로 배치 */
-  .district-options { max-height: 320px; overflow-y: auto; padding: 4px 2px; }
-  .district-options .wiz-opt { flex: 0 0 auto; min-width: 0; width: calc(20% - 8px); padding: 10px 6px; font-size: 0.88rem; }
-  @media (max-width: 640px) { .district-options .wiz-opt { width: calc(33.33% - 7px); } }
 
   .wiz-celebrate { font-size: 3.2rem; margin-bottom: 4px; }
   .wiz-meta { font-size: 1.1rem; color: var(--text-muted); margin: 4px 0; }
