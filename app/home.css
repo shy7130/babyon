@@ -123,9 +123,6 @@
   nav.main-nav .soon-link { opacity: 0.6; cursor: default; }
   @media (max-width: 760px) { nav.main-nav { display: none; } }
 
-  .admin-link { font-size: 0.85rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-  .admin-link:hover { color: var(--text); }
-
   /* ---------- hero ---------- */
   section.hero {
     position: relative; overflow: hidden;
