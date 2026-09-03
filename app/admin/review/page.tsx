@@ -1,15 +1,7 @@
 import { requireAdminSession } from '@/lib/auth/requireAdminSession'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import {
-  approveBenefit,
-  archiveBenefit,
-  createManualBenefitAction,
-  updateBenefitFieldsAction,
-  updateBenefitTagsAction,
-} from './actions'
-import { SITUATION_OPTIONS } from './constants'
-
-const WIZARD_STAGE_OPTIONS = ['임신 준비', '임신 초기', '임신 중기', '임신 후기', '출산 후'] as const
+import { approveBenefit, archiveBenefit, createManualBenefitAction, updateBenefitFieldsAction } from './actions'
+import TagsForm from './TagsForm'
 
 const TABS = [
   { key: 'staging', label: '신규 승인 대기' },
@@ -118,39 +110,7 @@ export default async function AdminReviewPage({
                 저장
               </button>
             </form>
-            <form action={updateBenefitTagsAction} className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-              <input type="hidden" name="id" value={benefit.id} />
-              <select name="category" defaultValue={benefit.category} className="rounded border px-2 py-1">
-                <option value="지원금">지원금</option>
-                <option value="의료·검사">의료·검사</option>
-                <option value="교통">교통</option>
-                <option value="출산·육아">출산·육아</option>
-                <option value="생활지원">생활지원</option>
-                <option value="민간혜택">민간혜택</option>
-              </select>
-              {WIZARD_STAGE_OPTIONS.map((stage) => {
-                const checked = (benefit.wizard_stages ?? '').split(',').includes(stage)
-                return (
-                  <label key={stage} className="flex items-center gap-1">
-                    <input type="checkbox" name={`stage_${stage}`} defaultChecked={checked} />
-                    {stage}
-                  </label>
-                )
-              })}
-              <span className="mx-1 text-slate-300">|</span>
-              {SITUATION_OPTIONS.map((situation) => {
-                const checked = (benefit.special_situations ?? '').split(',').includes(situation)
-                return (
-                  <label key={situation} className="flex items-center gap-1">
-                    <input type="checkbox" name={`situation_${situation}`} defaultChecked={checked} />
-                    {situation}
-                  </label>
-                )
-              })}
-              <button type="submit" className="rounded bg-indigo-700 px-3 py-1 text-white">
-                분류 저장
-              </button>
-            </form>
+            <TagsForm benefit={benefit} />
           </li>
         ))}
       </ul>

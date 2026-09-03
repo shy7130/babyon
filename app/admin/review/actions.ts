@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { requireAdminSession } from '@/lib/auth/requireAdminSession'
-import { SITUATION_OPTIONS } from './constants'
+import { SITUATION_OPTIONS, WIZARD_STAGE_OPTIONS } from './constants'
 
 export async function approveBenefit(id: string) {
   await requireAdminSession()
@@ -68,15 +68,15 @@ export async function updateBenefitFieldsAction(formData: FormData) {
   revalidatePath('/admin/review')
 }
 
-const WIZARD_STAGE_OPTIONS = ['임신 준비', '임신 초기', '임신 중기', '임신 후기', '출산 후'] as const
-
 export async function updateBenefitTagsAction(formData: FormData) {
   await requireAdminSession()
   const id = formData.get('id') as string
   const category = formData.get('category') as string
-  const selectedStages = WIZARD_STAGE_OPTIONS.filter((stage) => formData.get(`stage_${stage}`) === 'on')
+  // Field names are ASCII indices (see TagsForm.tsx) -- a Korean field name gets mangled by
+  // the multipart form parser, even though Korean field values round-trip fine.
+  const selectedStages = WIZARD_STAGE_OPTIONS.filter((_stage, i) => formData.get(`stage_${i}`) === 'on')
   const wizardStages = selectedStages.length > 0 ? selectedStages.join(',') : null
-  const selectedSituations = SITUATION_OPTIONS.filter((s) => formData.get(`situation_${s}`) === 'on')
+  const selectedSituations = SITUATION_OPTIONS.filter((_s, i) => formData.get(`situation_${i}`) === 'on')
   const specialSituations = selectedSituations.length > 0 ? selectedSituations.join(',') : null
 
   const supabase = createServerSupabaseClient()
