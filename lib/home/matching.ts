@@ -1,4 +1,4 @@
-import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from './types'
+import type { HomeBenefit, HomeCategory, WizardRegion, WizardSituation, WizardStage } from './types'
 
 export function normalizeRegion(dbRegion: string): 'all' | WizardRegion {
   if (dbRegion.startsWith('서울')) return '서울'
@@ -26,6 +26,14 @@ export function matchesStage(benefit: HomeBenefit, selected: WizardStage): boole
   return benefit.wizardStages.includes(selected)
 }
 
+// 정부 API의 대상특성 태깅은 신뢰도가 낮아(예: 보편사업이 "저소득"으로 오분류) 선택한 상황과
+// 안 맞는다고 결과에서 빼면 위험하다 — 그래서 이 함수는 필터링이 아니라 "우선순위" 판단에만
+// 쓰인다(getFeaturedBenefits 참고). 상황을 하나도 안 골랐으면 항상 false.
+export function matchesSituation(benefit: HomeBenefit, situations: WizardSituation[]): boolean {
+  if (situations.length === 0) return false
+  return benefit.specialSituations.some((s) => situations.includes(s))
+}
+
 export interface WizardSelection {
   region: WizardRegion
   district?: string | null
@@ -46,10 +54,20 @@ export function filterBenefits(benefits: HomeBenefit[], selection: WizardSelecti
 
 // 금액 데이터가 있는 항목 중 금액이 큰 순서로 상위 N개를 뽑는다 — "지금 챙기면 좋은 혜택" 추천
 // 카드용. 금액이 없는 항목(amountManwon === null)은 순위를 매길 수 없으므로 애초에 제외한다.
-export function getFeaturedBenefits(benefits: HomeBenefit[], count = 3): HomeBenefit[] {
+// 사용자가 선택한 상황(situations)과 맞는 항목은 결과를 줄이지 않고(matchesSituation 참고)
+// 대신 같은 금액 후보군 안에서 먼저 노출되도록 정렬 우선순위만 높인다.
+export function getFeaturedBenefits(
+  benefits: HomeBenefit[],
+  situations: WizardSituation[] = [],
+  count = 3
+): HomeBenefit[] {
   return benefits
     .filter((b): b is HomeBenefit & { amountManwon: number } => b.amountManwon != null)
-    .sort((a, b) => b.amountManwon - a.amountManwon)
+    .sort((a, b) => {
+      const situationDiff = Number(matchesSituation(b, situations)) - Number(matchesSituation(a, situations))
+      if (situationDiff !== 0) return situationDiff
+      return b.amountManwon - a.amountManwon
+    })
     .slice(0, count)
 }
 

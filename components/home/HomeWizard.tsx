@@ -1,18 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { filterBenefits, getFeaturedBenefits, getPopularBenefits } from '@/lib/home/matching'
-import type { HomeBenefit, HomeCategory, WizardRegion, WizardStage } from '@/lib/home/types'
-import CategoryGrid from './CategoryGrid'
+import { filterBenefits, getFeaturedBenefits } from '@/lib/home/matching'
+import type { HomeBenefit, HomeCategory, WizardRegion, WizardSituation, WizardStage } from '@/lib/home/types'
 import FeaturedPicks from './FeaturedPicks'
-import PopularBenefits from './PopularBenefits'
 import ResultsList from './ResultsList'
 import SiteHeader from './SiteHeader'
 import StatBar from './StatBar'
-import TrustStrip from './TrustStrip'
 
-type WizStep = 'region' | 'district' | 'status' | 'trimester' | 'child' | 'result'
+type WizStep = 'region' | 'district' | 'status' | 'trimester' | 'child' | 'situation' | 'result'
 type StatusVal = '임신 준비' | '임신 중' | '출산 후'
+type ChildCount = '1명' | '2명' | '3명 이상'
 
 const SEOUL_DISTRICTS = [
   '종로구', '중구', '용산구', '성동구', '광진구',
@@ -22,22 +20,25 @@ const SEOUL_DISTRICTS = [
   '관악구', '서초구', '강남구', '송파구', '강동구',
 ] as const
 
+const SITUATIONS: WizardSituation[] = ['다자녀', '장애인가정', '저소득·의료급여', '자영업자·프리랜서', '미혼모·부', '고위험임신']
+
 function nextStepAfter(step: WizStep, statusVal: StatusVal | null): WizStep {
   if (step === 'region') return 'district'
   if (step === 'district') return 'status'
   if (step === 'status') {
     if (statusVal === '임신 중') return 'trimester'
     if (statusVal === '출산 후') return 'child'
-    return 'result'
+    return 'situation'
   }
-  return 'result'
+  return 'situation'
 }
 
 function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
   if (step === 'district') return 'region'
   if (step === 'status') return 'district'
   if (step === 'trimester' || step === 'child') return 'status'
-  if (step === 'result') {
+  if (step === 'situation' || step === 'result') {
+    if (step === 'result') return 'situation'
     if (statusVal === '임신 중') return 'trimester'
     if (statusVal === '출산 후') return 'child'
     return 'status'
@@ -45,8 +46,8 @@ function prevStepFor(step: WizStep, statusVal: StatusVal | null): WizStep {
   return 'region'
 }
 
-// 구 선택도 "지역 선택" 단계의 연장으로 취급해 스테퍼(지역선택/상태선택/혜택확인) 3단계는
-// 그대로 둔다 — 화면은 하나 늘었지만 사용자 입장에서는 같은 "지역을 정하는" 과정이다.
+// 구 선택과 상황 선택도 각각 "지역 선택"/"상태 선택" 단계의 연장으로 취급해 스테퍼(지역선택/
+// 상태선택/혜택확인) 3단계는 그대로 둔다 — 화면은 늘었지만 사용자 입장에서는 같은 과정이다.
 function stepIndexFor(step: WizStep): 0 | 1 | 2 {
   if (step === 'region' || step === 'district') return 0
   if (step === 'result') return 2
@@ -68,6 +69,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [stage, setStage] = useState<WizardStage>('임신 중기')
   const [showResults, setShowResults] = useState(false)
   const [category, setCategory] = useState<HomeCategory | 'all'>('all')
+  const [situations, setSituations] = useState<WizardSituation[]>([])
   const [toast, setToast] = useState<string | null>(null)
 
   const matched = filterBenefits(benefits, { region, district, stage, category })
@@ -98,20 +100,26 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
 
   function handleTrimesterSelect(val: '초기' | '중기' | '후기') {
     setStage(`임신 ${val}` as WizardStage)
-    setStep('result')
+    setStep('situation')
   }
 
-  function handleChildSelect() {
-    setStep('result')
+  // 둘째 이상이면 "다자녀" 상황을 자동으로 켜둔다 — 뒤이은 상황 선택 화면에서 이미 체크된
+  // 채로 보이고, 원치 않으면 그 화면에서 바로 해제할 수 있다.
+  function handleChildSelect(count: ChildCount) {
+    if (count !== '1명') {
+      setSituations((prev) => (prev.includes('다자녀') ? prev : [...prev, '다자녀']))
+    }
+    setStep('situation')
+  }
+
+  function toggleSituation(situation: WizardSituation) {
+    setSituations((prev) =>
+      prev.includes(situation) ? prev.filter((s) => s !== situation) : [...prev, situation]
+    )
   }
 
   function handleBack() {
     setStep(prevStepFor(step, statusVal))
-  }
-
-  function handleCategoryFromGrid(selected: HomeCategory) {
-    setCategory(selected)
-    setShowResults(true)
   }
 
   function handleReset() {
@@ -120,12 +128,13 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
     setDistrict(null)
     setStatusVal(null)
     setCategory('all')
+    setSituations([])
   }
 
   const regionLabel = district ? `${region} ${district}` : region
 
   if (showResults) {
-    const featured = getFeaturedBenefits(stageBenefits)
+    const featured = getFeaturedBenefits(stageBenefits, situations)
     return (
       <>
         <SiteHeader onHomeClick={handleReset} />
@@ -245,6 +254,12 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
         </div>
 
         <div className="hero-center">
+          {step === 'district' || step === 'situation' ? (
+            <div className="wiz-scene wiz-scene-compact">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="char-arch char-arch-compact" src="/images/home/char-arch.png" alt="" />
+            </div>
+          ) : (
           <div className="wiz-scene">
             <div className="arch" />
             <div className="arch-cloud left" />
@@ -275,6 +290,7 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="char-arch" src="/images/home/char-arch.png" alt="" />
           </div>
+          )}
 
           <div className="wiz-card">
             {step !== 'region' && (
@@ -387,16 +403,47 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               <div className="wiz-panel" data-step="child">
                 <h3 className="wiz-question">아기가 몇 명인가요?</h3>
                 <div className="wiz-options">
-                  <button className="wiz-opt" type="button" onClick={handleChildSelect}>
+                  <button className="wiz-opt" type="button" onClick={() => handleChildSelect('1명')}>
                     1명
                   </button>
-                  <button className="wiz-opt" type="button" onClick={handleChildSelect}>
+                  <button className="wiz-opt" type="button" onClick={() => handleChildSelect('2명')}>
                     2명
                   </button>
-                  <button className="wiz-opt" type="button" onClick={handleChildSelect}>
+                  <button className="wiz-opt" type="button" onClick={() => handleChildSelect('3명 이상')}>
                     3명 이상
                   </button>
                 </div>
+              </div>
+            )}
+
+            {step === 'situation' && (
+              <div className="wiz-panel" data-step="situation">
+                <h3 className="wiz-question" style={{ marginBottom: 4 }}>
+                  해당되는 상황이 있으신가요?
+                </h3>
+                <p className="wiz-meta" style={{ marginBottom: 4 }}>
+                  없으면 그냥 건너뛰어도 괜찮아요
+                </p>
+                <div className="wiz-options vertical">
+                  {SITUATIONS.map((situation) => (
+                    <button
+                      key={situation}
+                      className={`wiz-opt situation-opt${situations.includes(situation) ? ' selected' : ''}`}
+                      type="button"
+                      onClick={() => toggleSituation(situation)}
+                    >
+                      {situation}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="btn primary fc-submit"
+                  type="button"
+                  style={{ marginTop: 16 }}
+                  onClick={() => setStep('result')}
+                >
+                  {situations.length > 0 ? '다음 →' : '건너뛰기 →'}
+                </button>
               </div>
             )}
 
@@ -448,19 +495,8 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
               회원가입 없이 바로 확인 가능
             </p>
           </div>
-
-          <a className="scroll-more" href="#categories">
-            <span>혜택 둘러보기</span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 6l5 5 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
         </div>
       </section>
-
-      <CategoryGrid onSelectCategory={handleCategoryFromGrid} />
-      <PopularBenefits benefits={getPopularBenefits(benefits)} />
-      <TrustStrip />
 
       <div className={`toast${toast ? ' show' : ''}`}>{toast}</div>
     </>

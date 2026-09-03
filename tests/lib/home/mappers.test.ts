@@ -13,6 +13,7 @@ describe('toHomeBenefit', () => {
       has_direct_apply_link: true,
       amount_manwon: 200,
       wizard_stages: '임신 후기,출산 후',
+      special_situations: '다자녀,저소득·의료급여',
       raw_payload: { jurMnofNm: '보건복지부' },
     }
 
@@ -26,6 +27,7 @@ describe('toHomeBenefit', () => {
       hasDirectApplyLink: true,
       amountManwon: 200,
       wizardStages: ['임신 후기', '출산 후'],
+      specialSituations: ['다자녀', '저소득·의료급여'],
       sourceLabel: '보건복지부',
     })
   })
@@ -58,5 +60,21 @@ describe('toHomeBenefit', () => {
     }
 
     expect(toHomeBenefit(row).wizardStages).toEqual([])
+  })
+
+  it('returns an empty specialSituations array when special_situations is null', () => {
+    const row = {
+      id: 'b4',
+      name: '태그 없음',
+      category: '지원금',
+      region: '전국',
+      summary: null,
+      apply_link: null,
+      wizard_stages: null,
+      special_situations: null,
+      raw_payload: null,
+    }
+
+    expect(toHomeBenefit(row).specialSituations).toEqual([])
   })
 })

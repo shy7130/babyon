@@ -11,7 +11,7 @@ export default async function HomePage() {
   const { data, error } = await supabase
     .from('benefits')
     .select(
-      'id, name, category, region, summary, apply_link, has_direct_apply_link, amount_manwon, wizard_stages'
+      'id, name, category, region, summary, apply_link, has_direct_apply_link, amount_manwon, wizard_stages, special_situations'
     )
     .eq('status', 'published')
     .not('wizard_stages', 'is', null)

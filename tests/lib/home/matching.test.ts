@@ -4,6 +4,7 @@ import {
   getFeaturedBenefits,
   getPopularBenefits,
   matchesRegion,
+  matchesSituation,
   matchesStage,
   normalizeRegion,
 } from '@/lib/home/matching'
@@ -20,6 +21,7 @@ function makeBenefit(overrides: Partial<HomeBenefit>): HomeBenefit {
     hasDirectApplyLink: false,
     amountManwon: null,
     wizardStages: ['임신 중기'],
+    specialSituations: [],
     sourceLabel: null,
     ...overrides,
   }
@@ -119,6 +121,23 @@ describe('filterBenefits', () => {
   })
 })
 
+describe('matchesSituation', () => {
+  it('returns false when no situations are selected', () => {
+    const benefit = makeBenefit({ specialSituations: ['다자녀'] })
+    expect(matchesSituation(benefit, [])).toBe(false)
+  })
+
+  it('returns true when the benefit has an overlapping tag', () => {
+    const benefit = makeBenefit({ specialSituations: ['다자녀', '장애인가정'] })
+    expect(matchesSituation(benefit, ['장애인가정'])).toBe(true)
+  })
+
+  it('returns false when the benefit has no overlapping tag', () => {
+    const benefit = makeBenefit({ specialSituations: ['다자녀'] })
+    expect(matchesSituation(benefit, ['장애인가정'])).toBe(false)
+  })
+})
+
 describe('getFeaturedBenefits', () => {
   const benefits: HomeBenefit[] = [
     makeBenefit({ id: 'a', amountManwon: 100 }),
@@ -132,11 +151,24 @@ describe('getFeaturedBenefits', () => {
   })
 
   it('limits to the requested count', () => {
-    expect(getFeaturedBenefits(benefits, 2).map((b) => b.id)).toEqual(['c', 'd'])
+    expect(getFeaturedBenefits(benefits, [], 2).map((b) => b.id)).toEqual(['c', 'd'])
   })
 
   it('returns an empty array when nothing has an amount', () => {
     expect(getFeaturedBenefits([makeBenefit({ amountManwon: null })])).toEqual([])
+  })
+
+  it('prioritizes a situation match over higher amounts, without dropping the rest', () => {
+    const withSituations: HomeBenefit[] = [
+      makeBenefit({ id: 'high', amountManwon: 300 }),
+      makeBenefit({ id: 'mid-matched', amountManwon: 150, specialSituations: ['장애인가정'] }),
+      makeBenefit({ id: 'low', amountManwon: 100 }),
+    ]
+    expect(getFeaturedBenefits(withSituations, ['장애인가정']).map((b) => b.id)).toEqual([
+      'mid-matched',
+      'high',
+      'low',
+    ])
   })
 })
 

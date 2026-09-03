@@ -72,14 +72,11 @@
   }
 
   * { box-sizing: border-box; }
-  /* header.site is sticky, so it permanently occupies space at the top of the viewport.
-     Without scroll-padding-top, scroll-snap-align:start on each snap-section aligns that
-     section's top edge with the true viewport top, sliding it underneath the sticky header
-     and exposing the next section's background in the space the header steals back. */
-  html { scroll-behavior: smooth; scroll-snap-type: y mandatory; scroll-padding-top: 90px; }
-  html:has(body.results-mode) { scroll-snap-type: none; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; scroll-snap-type: none; } }
-  .snap-section { scroll-snap-align: start; scroll-snap-stop: always; }
+  /* Scroll-snap removed: the landing page is now a single full-height section (hero only),
+     and mandatory snap with just one snap target trapped scroll position at the top,
+     clipping any content taller than the viewport (e.g. the district picker list). */
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   body {
     background: var(--bg);
@@ -164,6 +161,11 @@
 
   /* ---------- wizard scene (character + bubble) ---------- */
   .wiz-scene { position: relative; width: 520px; max-width: 100%; height: 300px; display: flex; align-items: flex-end; justify-content: center; margin: 0 auto; }
+  /* district (26 items) and situation (6-item checklist) steps have the longest option lists,
+     so the mascot scene shrinks to a small floating character to keep the whole card on
+     screen without scrolling. */
+  .wiz-scene.wiz-scene-compact { height: 64px; }
+  .char-arch.char-arch-compact { width: 120px; }
   .arch {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
     width: 350px; height: 300px;
@@ -247,6 +249,19 @@
   .wiz-options.vertical .wiz-opt { width: 100%; justify-content: flex-start; }
   .wiz-opt:hover { border-color: var(--mint-strong); background: var(--surface-mint); }
   .wiz-opt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .wiz-opt.selected { border-color: var(--mint-strong); background: var(--mint-soft); color: var(--mint-strong); }
+
+  /* 다중선택(체크박스형) 상황 선택 스텝 — 라디오형 wiz-opt와 구분되도록 좌측에 체크 표시를 둔다. */
+  .situation-opt { position: relative; padding-left: 44px; }
+  .situation-opt::before {
+    content: ""; position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border); background: var(--surface);
+  }
+  .situation-opt.selected::before { border-color: var(--mint-strong); background: var(--mint-strong); }
+  .situation-opt.selected::after {
+    content: "✓"; position: absolute; left: 19px; top: 50%; transform: translateY(-52%);
+    color: var(--surface); font-size: 0.8rem; font-weight: 800; line-height: 1;
+  }
   .wiz-opt .opt-icon.pin { width: 38px; height: 38px; border-radius: 50%; background: var(--mint-soft); color: var(--mint-strong); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .wiz-opt .opt-icon.pin svg { width: 19px; height: 19px; }
   .wiz-opt .opt-emoji { font-size: 1.8rem; }

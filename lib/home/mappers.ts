@@ -1,4 +1,4 @@
-import type { HomeBenefit, HomeCategory, WizardStage } from './types'
+import type { HomeBenefit, HomeCategory, WizardSituation, WizardStage } from './types'
 
 export function toHomeBenefit(row: Record<string, any>): HomeBenefit {
   const rawPayload = row.raw_payload as Record<string, any> | null
@@ -13,6 +13,9 @@ export function toHomeBenefit(row: Record<string, any>): HomeBenefit {
     amountManwon: row.amount_manwon ?? null,
     wizardStages: row.wizard_stages
       ? (row.wizard_stages.split(',') as WizardStage[])
+      : [],
+    specialSituations: row.special_situations
+      ? (row.special_situations.split(',') as WizardSituation[])
       : [],
     sourceLabel: rawPayload?.jurMnofNm ?? null,
   }
