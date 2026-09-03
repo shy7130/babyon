@@ -119,6 +119,45 @@ describe('filterBenefits', () => {
     })
     expect(result.map((b) => b.id)).toEqual(['x', 'y'])
   })
+
+  it('always includes a benefit with no situation tag, regardless of selected situations', () => {
+    const untagged = makeBenefit({ id: 'u', specialSituations: [] })
+    expect(filterBenefits([untagged], { region: '전국', stage: '임신 중기', category: 'all' })).toEqual([
+      untagged,
+    ])
+    expect(
+      filterBenefits([untagged], {
+        region: '전국',
+        stage: '임신 중기',
+        category: 'all',
+        situations: ['다자녀'],
+      })
+    ).toEqual([untagged])
+  })
+
+  it('hides a benefit tagged with a situation the user did not select', () => {
+    const tagged = makeBenefit({ id: 't', specialSituations: ['장애인가정'] })
+    expect(filterBenefits([tagged], { region: '전국', stage: '임신 중기', category: 'all' })).toEqual([])
+    expect(
+      filterBenefits([tagged], {
+        region: '전국',
+        stage: '임신 중기',
+        category: 'all',
+        situations: ['다자녀'],
+      })
+    ).toEqual([])
+  })
+
+  it('shows a tagged benefit once the matching situation is selected', () => {
+    const tagged = makeBenefit({ id: 't', specialSituations: ['장애인가정'] })
+    const result = filterBenefits([tagged], {
+      region: '전국',
+      stage: '임신 중기',
+      category: 'all',
+      situations: ['장애인가정'],
+    })
+    expect(result).toEqual([tagged])
+  })
 })
 
 describe('matchesSituation', () => {

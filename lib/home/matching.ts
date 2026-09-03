@@ -39,15 +39,27 @@ export interface WizardSelection {
   district?: string | null
   stage: WizardStage
   category: HomeCategory | 'all'
+  situations?: WizardSituation[]
+}
+
+// 상황 태그가 붙은 혜택(예: "장애인가정")은 실제로 그 상황에 해당하는 사람만 받을 수 있는
+// 경우가 많다 — 관리자가 명시적으로 태그를 붙였다면 그 조건에 안 맞는 사용자에게는 숨긴다.
+// 태그가 하나도 없는 범용 혜택은 지금처럼 누구에게나 노출한다(getFeaturedBenefits의
+// matchesSituation과 달리 이건 "필터"이지 "우선순위"가 아니다).
+function matchesSituationFilter(benefit: HomeBenefit, situations: WizardSituation[]): boolean {
+  if (benefit.specialSituations.length === 0) return true
+  return benefit.specialSituations.some((s) => situations.includes(s))
 }
 
 export function filterBenefits(benefits: HomeBenefit[], selection: WizardSelection): HomeBenefit[] {
+  const situations = selection.situations ?? []
   return benefits.filter((benefit) => {
     const matchCategory = selection.category === 'all' || benefit.category === selection.category
     return (
       matchCategory &&
       matchesRegion(benefit, selection.region, selection.district ?? null) &&
-      matchesStage(benefit, selection.stage)
+      matchesStage(benefit, selection.stage) &&
+      matchesSituationFilter(benefit, situations)
     )
   })
 }

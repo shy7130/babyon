@@ -64,8 +64,8 @@ export default function HomeWizard({ benefits }: { benefits: HomeBenefit[] }) {
   const [situations, setSituations] = useState<WizardSituation[]>([])
   const [toast, setToast] = useState<string | null>(null)
 
-  const matched = filterBenefits(benefits, { region, stage, category })
-  const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all' })
+  const matched = filterBenefits(benefits, { region, stage, category, situations })
+  const stageBenefits = filterBenefits(benefits, { region, stage, category: 'all', situations })
 
   function handleRegionSelect(val: WizardRegion) {
     setRegion(val)
