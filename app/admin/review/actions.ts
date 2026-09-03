@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { requireAdminSession } from '@/lib/auth/requireAdminSession'
+import { SITUATION_OPTIONS } from './constants'
 
 export async function approveBenefit(id: string) {
   await requireAdminSession()
@@ -75,11 +76,13 @@ export async function updateBenefitTagsAction(formData: FormData) {
   const category = formData.get('category') as string
   const selectedStages = WIZARD_STAGE_OPTIONS.filter((stage) => formData.get(`stage_${stage}`) === 'on')
   const wizardStages = selectedStages.length > 0 ? selectedStages.join(',') : null
+  const selectedSituations = SITUATION_OPTIONS.filter((s) => formData.get(`situation_${s}`) === 'on')
+  const specialSituations = selectedSituations.length > 0 ? selectedSituations.join(',') : null
 
   const supabase = createServerSupabaseClient()
   const { error } = await supabase
     .from('benefits')
-    .update({ category, wizard_stages: wizardStages })
+    .update({ category, wizard_stages: wizardStages, special_situations: specialSituations })
     .eq('id', id)
   if (error) throw error
   revalidatePath('/admin/review')

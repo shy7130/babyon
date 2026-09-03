@@ -7,6 +7,7 @@ import {
   updateBenefitFieldsAction,
   updateBenefitTagsAction,
 } from './actions'
+import { SITUATION_OPTIONS } from './constants'
 
 const WIZARD_STAGE_OPTIONS = ['임신 준비', '임신 초기', '임신 중기', '임신 후기', '출산 후'] as const
 
@@ -133,6 +134,16 @@ export default async function AdminReviewPage({
                   <label key={stage} className="flex items-center gap-1">
                     <input type="checkbox" name={`stage_${stage}`} defaultChecked={checked} />
                     {stage}
+                  </label>
+                )
+              })}
+              <span className="mx-1 text-slate-300">|</span>
+              {SITUATION_OPTIONS.map((situation) => {
+                const checked = (benefit.special_situations ?? '').split(',').includes(situation)
+                return (
+                  <label key={situation} className="flex items-center gap-1">
+                    <input type="checkbox" name={`situation_${situation}`} defaultChecked={checked} />
+                    {situation}
                   </label>
                 )
               })}
