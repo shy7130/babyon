@@ -1,14 +1,18 @@
+import { headers } from 'next/headers'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { toHomeBenefit } from '@/lib/home/mappers'
+import { isBotUserAgent } from '@/lib/analytics/isBot'
 import HomeWizard from '@/components/home/HomeWizard'
 import './home.css'
 
 export default async function HomePage() {
   const supabase = createServerSupabaseClient()
 
-  const { error: viewError } = await supabase.rpc('increment_page_view')
-  if (viewError) {
-    console.error('failed to record page view:', viewError)
+  if (!isBotUserAgent(headers().get('user-agent'))) {
+    const { error: viewError } = await supabase.rpc('increment_page_view')
+    if (viewError) {
+      console.error('failed to record page view:', viewError)
+    }
   }
 
   // anon has column-level grants only (see migrations 0002/0004), never table-wide SELECT —
