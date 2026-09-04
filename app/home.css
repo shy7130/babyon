@@ -121,7 +121,21 @@
   nav.main-nav a, nav.main-nav .soon-link { text-decoration: none; padding: 4px 0; }
   nav.main-nav a:hover { color: var(--text); }
   nav.main-nav .soon-link { opacity: 0.6; cursor: default; }
+  nav.main-nav a.active { color: var(--mint-strong); border-bottom: 2px solid var(--mint-strong); }
   @media (max-width: 760px) { nav.main-nav { display: none; } }
+
+  .site-bar-icons { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .icon-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer;
+  }
+  .icon-btn:hover { background: var(--surface-mint); color: var(--mint-strong); }
+  .icon-btn .icon-dot { position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--blush); }
+  .avatar-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%; background: var(--surface-mint); color: var(--mint-strong);
+  }
 
   /* ---------- hero ---------- */
   section.hero {
