@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Jua } from 'next/font/google'
 import SiteHeader from '@/components/home/SiteHeader'
 
-const jua = Jua({ weight: '400', subsets: ['korean'], preload: false })
+const jua = Jua({ weight: '400', subsets: ['latin'], preload: false })
 
 const HUB_BUTTONS = [
   { label: '자유톡', icon: 'free-talk', left: 39.37, top: 20.51, iconScale: 0.85, labelOffsetY: -5 },
